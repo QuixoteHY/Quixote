@@ -5,4 +5,6 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 配置文件
 
+SCHEDULER = 'quixote.scheduler.Scheduler'
+
 REQUEST_FILTER_CLASS = ''
