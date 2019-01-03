@@ -5,5 +5,5 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 对HTTP相关操作的封装
 
-from quixote.http.request import Request
-from quixote.http.response import Response
+from quixote.protocol.request import Request
+from quixote.protocol.response import Response

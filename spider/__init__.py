@@ -5,7 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 爬虫基类
 
-from quixote.http import Request
+from quixote.protocol.request import Request
 
 
 class Spider(object):

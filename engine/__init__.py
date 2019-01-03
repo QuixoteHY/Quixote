@@ -8,8 +8,8 @@
 import types
 
 from quixote.scheduler import Scheduler
-from quixote.http.request import Request
-from quixote.http.response import Response
+from quixote.protocol.request import Request
+from quixote.protocol.response import Response
 from quixote.downloader import Downloader
 from quixote.exception import NoCallbackError
 from quixote.utils.misc import load_object

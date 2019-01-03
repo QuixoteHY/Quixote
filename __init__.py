@@ -6,5 +6,5 @@
 # @Describe : A crawler framework is based on asyncio.
 
 from quixote.spider import Spider
-from quixote.http.request import Request
-from quixote.http.response import Response
+from quixote.protocol.request import Request
+from quixote.protocol.response import Response
