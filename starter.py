@@ -12,6 +12,7 @@ from threading import Thread
 import asyncio
 
 from quixote.settings import Settings
+from quixote.engine import Engine
 from quixote.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -25,8 +26,10 @@ class Starter(object):
             from quixote.settings import settings
             self.settings = Settings(settings).get_settings()
         print(self.settings)
-        self.engine = load_object(self.settings['ENGINE'])
-        self.spider = load_object(spider_class)
+        self.engine_class = load_object(self.settings['ENGINE'])
+        self.spider_class = load_object(spider_class)
+        self.engine = None
+        self.spider = None
         self.crawling = False
         self.now = lambda: time.time()
 
@@ -37,24 +40,28 @@ class Starter(object):
 
     def start(self):
         start = self.now()
-        new_loop = asyncio.new_event_loop()
-        t = Thread(target=self._start, args=(new_loop,))
+        loop = asyncio.new_event_loop()
+        t = Thread(target=self._start, args=(loop,))
         t.setDaemon(True)
         t.start()
         print('TIME: {}'.format(self.now() - start))
         try:
-            while True:
-                asyncio.run_coroutine_threadsafe(self.do_some_work(6), new_loop)
-                asyncio.run_coroutine_threadsafe(self.do_some_work(4), new_loop)
+            self.spider = self._create_spider()
+            self.engine = self._create_engine()
+            self.engine.open_spider(self.spider, loop)
+            self.engine.start()
+            # while True:
+            #     asyncio.run_coroutine_threadsafe(self.do_some_work(6), new_loop)
+            #     asyncio.run_coroutine_threadsafe(self.do_some_work(4), new_loop)
         except KeyboardInterrupt as e:
             print('$$$$$$$$'+str(e))
-            new_loop.stop()
+            loop.stop()
 
-    @staticmethod
-    async def do_some_work(x):
-        print('Waiting {}'.format(x))
-        await asyncio.sleep(x)
-        print('Done after {}s'.format(x))
+    def _create_spider(self, *args, **kwargs):
+        return self.spider_class.from_crawler(self, *args, **kwargs)
+
+    def _create_engine(self):
+        return Engine(self)
 
 
 def main():

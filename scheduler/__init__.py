@@ -22,9 +22,10 @@ class Scheduler(object):
         self.rf = request_filter
 
     @classmethod
-    def from_crawler(cls, crawler):
-        settings = crawler.settings
-        request_filter = load_object(settings['REQUEST_FILTER_CLASS'])
+    def from_starter(cls, starter):
+        settings = starter.settings
+        # request_filter = load_object(settings['REQUEST_FILTER_CLASS'])
+        request_filter = None
         return cls(request_filter)
 
     def pop_request(self):

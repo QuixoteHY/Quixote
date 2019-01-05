@@ -8,3 +8,7 @@
 
 class NoCallbackError(Exception):
     pass
+
+
+class NoRequestInQueue(Exception):
+    pass
