@@ -5,6 +5,10 @@
 # @Email    : 1290482442@qq.com
 # @Describe : A crawler framework is based on asyncio.
 
+import asyncio
+
 from quixote.spider import Spider
 from quixote.protocol.request import Request
 from quixote.protocol.response import Response
+
+loop = asyncio.new_event_loop()

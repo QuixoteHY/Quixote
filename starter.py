@@ -12,7 +12,7 @@ from threading import Thread
 import asyncio
 
 from quixote.settings import Settings
-from quixote.engine import Engine
+from quixote import loop
 from quixote.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -34,25 +34,21 @@ class Starter(object):
         self.now = lambda: time.time()
 
     @staticmethod
-    def _start(loop):
+    def _start():
         asyncio.set_event_loop(loop)
         loop.run_forever()
 
     def start(self):
         start = self.now()
-        loop = asyncio.new_event_loop()
-        t = Thread(target=self._start, args=(loop,))
+        t = Thread(target=self._start)
         t.setDaemon(True)
         t.start()
         print('TIME: {}'.format(self.now() - start))
         try:
             self.spider = self._create_spider()
             self.engine = self._create_engine()
-            self.engine.open_spider(self.spider, loop)
-            self.engine.start()
-            # while True:
-            #     asyncio.run_coroutine_threadsafe(self.do_some_work(6), new_loop)
-            #     asyncio.run_coroutine_threadsafe(self.do_some_work(4), new_loop)
+            self.engine.open_spider(self.spider)
+            # self.engine.start()
         except KeyboardInterrupt as e:
             print('$$$$$$$$'+str(e))
             loop.stop()
@@ -61,7 +57,7 @@ class Starter(object):
         return self.spider_class.from_crawler(self, *args, **kwargs)
 
     def _create_engine(self):
-        return Engine(self)
+        return self.engine_class(self)
 
 
 def main():

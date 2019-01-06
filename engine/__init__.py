@@ -7,14 +7,51 @@
 
 import types
 import time
+import logging
+import functools
 
 import asyncio
 
+from quixote import loop
 from quixote.protocol.request import Request
 from quixote.protocol.response import Response
 from quixote.downloader import Downloader
 from quixote.exception import NoCallbackError, NoRequestInQueue
 from quixote.utils.misc import load_object
+
+logger = logging.getLogger(__name__)
+
+
+class CallLaterOnce(object):
+    """Schedule a function to be called in the next reactor loop, but only if
+    it hasn't been already scheduled since the last time it ran.
+    """
+    def __init__(self, func, *a, **kw):
+        self._func = func
+        self._a = a
+        self._kw = kw
+        self._call = None
+
+    def schedule(self, delay=0):
+        if self._call is None:
+            # self._call = reactor.callLater(delay, self)
+            self._call = loop.call_later(delay, self, loop)
+
+    def cancel(self):
+        if self._call:
+            self._call.cancel()
+
+    def __call__(self):
+        self._call = None
+        return self._func(*self._a, **self._kw)
+
+
+class Heart(object):
+    def __init__(self, start_requests, next_call, scheduler):
+        self.start_requests = iter(start_requests)
+        self.next_call = next_call
+        self.scheduler = scheduler
+        self.heartbeat = None  # task.LoopingCall(nextcall.schedule)
 
 
 class Engine(object):
@@ -24,7 +61,9 @@ class Engine(object):
         self.loop = None
         self.spider = None
         self.scheduler = None
+        self.heart = None
         self.scheduler_class = load_object(self.settings['SCHEDULER'])
+        self.running = False
         self.crawling = []
         self.max = 5
 
@@ -44,40 +83,70 @@ class Engine(object):
         else:
             raise NoCallbackError('No callback function in request')
 
-    async def _next_request(self):
-        if self.scheduler.size() == 0 and len(self.crawling) == 0:
-            self._closewait.callback(None)
-        if len(self.crawling) >= 5:
+    def _next_request(self, spider):
+        if not self.heart:
             return
-        while len(self.crawling) < 5:
-            req = self.scheduler.pop_request()
-            if not req:
-                return
-            d = await Downloader.get(req.url.encode('utf-8'))
-            self.crawling.append(d)
-            d.addCallback(self.get_response, req)
+        heart = self.heart
+        while True:
+            if not self._next_request_from_scheduler(spider):
+                break
+        if heart.start_requests:
+            try:
+                request = next(heart.start_requests)
+            except StopIteration:
+                heart.start_requests = None
+            except Exception as e:
+                heart.start_requests = None
+                logger.error('Error while obtaining start requests', exc_info=True,
+                             extra={'spider': spider, 'exc_info': str(e)})
+            else:
+                self.crawl(request, spider)
 
-    def open_spider(self, spider, loop):
+    def _next_request_from_scheduler(self, spider):
+        heart = self.heart
+        request = heart.scheduler.pop_request()
+        if not request:
+            return
+        # task = loop.create_task(self._download(request, spider))
+        task = loop.create_task(self.do_some_work(3, request.url))
+        # task.add_done_callback(functools.partial(self._handle_downloader_output, request, spider))
+        # task.add_done_callback(lambda _: heart.next_call.schedule())
+        print(type(task))
+        asyncio.run_coroutine_threadsafe(task, loop)
+
+    def crawl(self, request, spider):
+        assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
+        self.heart.scheduler.push_request(request)
+        self.heart.next_call.schedule()
+
+    async def _download(self, request, spider):
+        return await self.do_some_work(3, request.url)
+
+    def _handle_downloader_output(self, response, request, spider):
+        print(response)
+
+    def open_spider(self, spider):
         self.spider = spider
-        self.loop = loop
-        self.scheduler = self.scheduler_class.from_starter(self.starter)
-        for request in self.spider.start_requests():
-            self.scheduler.push_request(request)
-        # flag = True
-        # while flag:
-        #     try:
-        #         # req = next(start_requests)
-        #         # self.scheduler.push_request(req)
-        #         pass
-        #     except StopIteration as _:
-        #         flag = False
+        next_call = CallLaterOnce(self._next_request, spider)
+        scheduler = self.scheduler_class.from_starter(self.starter)
+        start_requests = self.spider.start_requests()
+        heart = Heart(start_requests, next_call, scheduler)
+        self.heart = heart
+        # for request in start_requests:
+        #     self.heart.scheduler.push_request(request)
+        while True:
+            # heart.next_call.schedule()
+            self._next_request(spider)
+            time.sleep(2)
+            print('sleep: 2')
 
     def start(self):
+        self.running = True
         while True:
             try:
                 request = self.scheduler.pop_request()
                 if request:
-                    asyncio.run_coroutine_threadsafe(self.do_some_work(6, request.url), self.loop)
+                    asyncio.run_coroutine_threadsafe(self.do_some_work(6, request.url), loop)
                 else:
                     raise NoRequestInQueue('NoRequestInQueue')
             except NoRequestInQueue as e:
@@ -89,3 +158,4 @@ class Engine(object):
         print('Waiting {}'.format(url))
         await asyncio.sleep(x)
         print('Done after {}s'.format(url))
+        return 'url: '+url
