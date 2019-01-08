@@ -5,7 +5,6 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
-import types
 import time
 import logging
 import functools
@@ -16,7 +15,6 @@ from quixote import loop
 from quixote.protocol.request import Request
 from quixote.protocol.response import Response
 from quixote.downloader import Downloader
-from quixote.exception import NoCallbackError, NoRequestInQueue
 from quixote.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -52,7 +50,7 @@ class Heart(object):
         self.next_call.schedule()
         loop.call_later(interval, self._heartbeat, interval)
 
-    def start_heartbeat(self, interval):
+    def start(self, interval):
         self._heartbeat(interval)
 
 
@@ -68,22 +66,6 @@ class Engine(object):
         self.running = False
         self.crawling = []
         self.max = 5
-
-    def get_response(self, content, request):
-        response = Response(content, request)
-        if request.callback:
-            gen = request.callback(response)
-            if isinstance(gen, types.GeneratorType):
-                for req in gen:
-                    if isinstance(req, Request):
-                        self.scheduler.push_request(req)
-                    elif isinstance(req, (str, bytes)):
-                        print(req)
-                    else:
-                        raise TypeError('type of the request callback must be a Request or a str or a bytes, '
-                                        'got %s' % type(req).__name__)
-        else:
-            raise NoCallbackError('No callback function in request')
 
     def _next_request(self, spider):
         if not self.heart:
@@ -111,23 +93,28 @@ class Engine(object):
             return
         asyncio.run_coroutine_threadsafe(self._download(request, spider), loop)
 
+    async def _download(self, request, spider):
+        try:
+            print('Waiting {}'.format(request.url))
+            await asyncio.sleep(1)
+            self.heart.next_call.schedule()
+            for response in request.callback('url: '+request.url):
+                self._handle_downloader_output(response, request, spider)
+        except Exception as e:
+            print(e)
+        finally:
+            self.heart.next_call.schedule()
+
+    def _handle_downloader_output(self, response, request, spider):
+        if isinstance(response, Request):
+            self.crawl(response, spider)
+            return
+        print('Parsed {}'.format(response))
+
     def crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
         self.heart.scheduler.push_request(request)
         self.heart.next_call.schedule()
-
-    async def _download(self, request, spider):
-        try:
-            print('Waiting {}'.format(request.url))
-            await asyncio.sleep(3)
-            print('Done after {}s'.format(request.url))
-            request.callback('url: '+request.url)
-            return 'url: '+request.url
-        except Exception as e:
-            print(e)
-
-    def _handle_downloader_output(self, response, request, spider):
-        print(response)
 
     def start(self, spider):
         self.spider = spider
@@ -135,26 +122,6 @@ class Engine(object):
         scheduler = self.scheduler_class.from_starter(self.starter)
         start_requests = self.spider.start_requests()
         self.heart = Heart(start_requests, next_call, scheduler)
-        self.heart.start_heartbeat(5)
+        self.heart.start(5)
         asyncio.set_event_loop(loop)
         loop.run_forever()
-
-    def test(self):
-        self.running = True
-        while True:
-            try:
-                request = self.scheduler.pop_request()
-                if request:
-                    asyncio.run_coroutine_threadsafe(self.do_some_work(6, request.url), loop)
-                else:
-                    raise NoRequestInQueue('NoRequestInQueue')
-            except NoRequestInQueue as e:
-                print(e)
-                time.sleep(10)
-
-    @staticmethod
-    async def do_some_work(x, url):
-        print('Waiting {}'.format(url))
-        await asyncio.sleep(x)
-        print('Done after {}s'.format(url))
-        return 'url: '+url

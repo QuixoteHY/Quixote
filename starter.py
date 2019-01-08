@@ -31,7 +31,6 @@ class Starter(object):
         self.engine = None
         self.spider = None
         self.crawling = False
-        self.now = lambda: time.time()
 
     @staticmethod
     def _start():
@@ -39,17 +38,17 @@ class Starter(object):
         loop.run_forever()
 
     def start(self):
-        start = self.now()
+        start = int(time.time())
         # t = Thread(target=self._start)
         # t.setDaemon(True)
         # t.start()
-        print('TIME: {}'.format(self.now() - start))
         try:
             self.spider = self._create_spider()
             self.engine = self._create_engine()
             self.engine.start(self.spider)
         except KeyboardInterrupt as e:
-            print('$$$$$$$$'+str(e))
+            print(e)
+            print('total time: '+str(int(time.time())-start))
             loop.stop()
 
     def _create_spider(self, *args, **kwargs):
