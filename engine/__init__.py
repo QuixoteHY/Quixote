@@ -23,19 +23,15 @@ logger = logging.getLogger(__name__)
 
 
 class CallLaterOnce(object):
-    """Schedule a function to be called in the next reactor loop, but only if
-    it hasn't been already scheduled since the last time it ran.
-    """
     def __init__(self, func, *a, **kw):
         self._func = func
         self._a = a
         self._kw = kw
         self._call = None
 
-    def schedule(self, delay=0):
+    def schedule(self, delay=1):
         if self._call is None:
-            # self._call = reactor.callLater(delay, self)
-            self._call = loop.call_later(delay, self, loop)
+            self._call = loop.call_later(delay, self)
 
     def cancel(self):
         if self._call:
@@ -51,7 +47,13 @@ class Heart(object):
         self.start_requests = iter(start_requests)
         self.next_call = next_call
         self.scheduler = scheduler
-        self.heartbeat = None  # task.LoopingCall(nextcall.schedule)
+
+    def _heartbeat(self, interval):
+        self.next_call.schedule()
+        loop.call_later(interval, self._heartbeat, interval)
+
+    def start_heartbeat(self, interval):
+        self._heartbeat(interval)
 
 
 class Engine(object):
@@ -107,12 +109,7 @@ class Engine(object):
         request = heart.scheduler.pop_request()
         if not request:
             return
-        # task = loop.create_task(self._download(request, spider))
-        task = loop.create_task(self.do_some_work(3, request.url))
-        # task.add_done_callback(functools.partial(self._handle_downloader_output, request, spider))
-        # task.add_done_callback(lambda _: heart.next_call.schedule())
-        print(type(task))
-        asyncio.run_coroutine_threadsafe(task, loop)
+        asyncio.run_coroutine_threadsafe(self._download(request, spider), loop)
 
     def crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
@@ -120,27 +117,29 @@ class Engine(object):
         self.heart.next_call.schedule()
 
     async def _download(self, request, spider):
-        return await self.do_some_work(3, request.url)
+        try:
+            print('Waiting {}'.format(request.url))
+            await asyncio.sleep(3)
+            print('Done after {}s'.format(request.url))
+            request.callback('url: '+request.url)
+            return 'url: '+request.url
+        except Exception as e:
+            print(e)
 
     def _handle_downloader_output(self, response, request, spider):
         print(response)
 
-    def open_spider(self, spider):
+    def start(self, spider):
         self.spider = spider
         next_call = CallLaterOnce(self._next_request, spider)
         scheduler = self.scheduler_class.from_starter(self.starter)
         start_requests = self.spider.start_requests()
-        heart = Heart(start_requests, next_call, scheduler)
-        self.heart = heart
-        # for request in start_requests:
-        #     self.heart.scheduler.push_request(request)
-        while True:
-            # heart.next_call.schedule()
-            self._next_request(spider)
-            time.sleep(2)
-            print('sleep: 2')
+        self.heart = Heart(start_requests, next_call, scheduler)
+        self.heart.start_heartbeat(5)
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
 
-    def start(self):
+    def test(self):
         self.running = True
         while True:
             try:

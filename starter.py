@@ -40,15 +40,14 @@ class Starter(object):
 
     def start(self):
         start = self.now()
-        t = Thread(target=self._start)
-        t.setDaemon(True)
-        t.start()
+        # t = Thread(target=self._start)
+        # t.setDaemon(True)
+        # t.start()
         print('TIME: {}'.format(self.now() - start))
         try:
             self.spider = self._create_spider()
             self.engine = self._create_engine()
-            self.engine.open_spider(self.spider)
-            # self.engine.start()
+            self.engine.start(self.spider)
         except KeyboardInterrupt as e:
             print('$$$$$$$$'+str(e))
             loop.stop()
