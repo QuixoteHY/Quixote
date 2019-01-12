@@ -27,7 +27,7 @@ class CallLaterOnce(object):
         self._kw = kw
         self._call = None
 
-    def schedule(self, delay=1):
+    def schedule(self, delay=0):
         if self._call is None:
             self._call = loop.call_later(delay, self)
 
