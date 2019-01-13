@@ -15,7 +15,32 @@ from quixote.settings import Settings
 from quixote import loop
 from quixote.utils.misc import load_object
 
+from quixote.utils.schedule_func import CallLaterOnce
+import tracemalloc
+
+tracemalloc.start()
+
 logger = logging.getLogger(__name__)
+
+
+class CheckMemory(object):
+    def __init__(self):
+        self.next_call = CallLaterOnce(self._func)
+
+    @staticmethod
+    def _func():
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        print("[ Top 10 ]")
+        for stat in top_stats[:10]:
+            print(stat)
+
+    def _heartbeat(self, interval):
+        self.next_call.schedule()
+        loop.call_later(interval, self._heartbeat, interval)
+
+    def start(self, interval):
+        self._heartbeat(interval)
 
 
 class Starter(object):
@@ -43,6 +68,8 @@ class Starter(object):
         # t.setDaemon(True)
         # t.start()
         try:
+            cm = CheckMemory()
+            cm.start(60)
             self.spider = self._create_spider()
             self.engine = self._create_engine()
             self.engine.start(self.spider)

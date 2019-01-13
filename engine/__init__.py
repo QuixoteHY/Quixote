@@ -5,9 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
-import time
 import logging
-import functools
 
 import asyncio
 
@@ -16,28 +14,9 @@ from quixote.protocol.request import Request
 from quixote.protocol.response import Response
 from quixote.downloader import Downloader
 from quixote.utils.misc import load_object
+from quixote.utils.schedule_func import CallLaterOnce
 
 logger = logging.getLogger(__name__)
-
-
-class CallLaterOnce(object):
-    def __init__(self, func, *a, **kw):
-        self._func = func
-        self._a = a
-        self._kw = kw
-        self._call = None
-
-    def schedule(self, delay=0):
-        if self._call is None:
-            self._call = loop.call_later(delay, self)
-
-    def cancel(self):
-        if self._call:
-            self._call.cancel()
-
-    def __call__(self):
-        self._call = None
-        return self._func(*self._a, **self._kw)
 
 
 class Heart(object):
@@ -84,7 +63,7 @@ class Engine(object):
                 logger.error('Error while obtaining start requests', exc_info=True,
                              extra={'spider': spider, 'exc_info': str(e)})
             else:
-                self.crawl(request, spider)
+                self._crawl(request, spider)
 
     def _next_request_from_scheduler(self, spider):
         heart = self.heart
@@ -107,11 +86,11 @@ class Engine(object):
 
     def _handle_downloader_output(self, response, request, spider):
         if isinstance(response, Request):
-            self.crawl(response, spider)
+            self._crawl(response, spider)
             return
         print('Parsed {}'.format(response))
 
-    def crawl(self, request, spider):
+    def _crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
         self.heart.scheduler.push_request(request)
         self.heart.next_call.schedule()
