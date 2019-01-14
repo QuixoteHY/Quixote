@@ -9,4 +9,12 @@ ENGINE = 'quixote.engine.Engine'
 
 SCHEDULER = 'quixote.scheduler.Scheduler'
 
+DOWNLOADER = 'quixote.downloader.Downloader'
+
 REQUEST_FILTER_CLASS = 'None'
+
+CONCURRENT_REQUESTS = 200
+CONCURRENT_REQUESTS_PER_DOMAIN = 8
+CONCURRENT_REQUESTS_PER_IP = 0
+
+RANDOMIZE_DOWNLOAD_DELAY = True

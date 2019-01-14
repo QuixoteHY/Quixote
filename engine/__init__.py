@@ -11,8 +11,6 @@ import asyncio
 
 from quixote import loop
 from quixote.protocol.request import Request
-from quixote.protocol.response import Response
-from quixote.downloader import Downloader
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
 
@@ -42,6 +40,8 @@ class Engine(object):
         self.scheduler = None
         self.heart = None
         self.scheduler_class = load_object(self.settings['SCHEDULER'])
+        downloader_class = load_object(self.settings['DOWNLOADER'])
+        self.downloader = downloader_class(starter)
         self.running = False
         self.crawling = []
         self.max = 5
@@ -50,10 +50,10 @@ class Engine(object):
         if not self.heart:
             return
         heart = self.heart
-        while True:
+        while not self._needs_slowdown():
             if not self._next_request_from_scheduler(spider):
                 break
-        if heart.start_requests:
+        if heart.start_requests and not self._needs_slowdown():
             try:
                 request = next(heart.start_requests)
             except StopIteration:
@@ -65,30 +65,33 @@ class Engine(object):
             else:
                 self._crawl(request, spider)
 
+    def _needs_slowdown(self):
+        return self.downloader.needs_slowdown()
+
     def _next_request_from_scheduler(self, spider):
         heart = self.heart
         request = heart.scheduler.pop_request()
         if not request:
-            return
+            return False
         asyncio.run_coroutine_threadsafe(self._download(request, spider), loop)
+        return True
 
     async def _download(self, request, spider):
         try:
-            print('Waiting {}'.format(request.url))
-            await asyncio.sleep(1)
+            response = await self.downloader.fetch(request, spider)
             self.heart.next_call.schedule()
-            for response in request.callback('url: '+request.url):
-                self._handle_downloader_output(response, request, spider)
+            for item_or_request in request.callback(response):
+                self._handle_downloader_output(item_or_request, request, spider)
         except Exception as e:
             print(e)
         finally:
             self.heart.next_call.schedule()
 
-    def _handle_downloader_output(self, response, request, spider):
-        if isinstance(response, Request):
-            self._crawl(response, spider)
+    def _handle_downloader_output(self, item_or_request, request, spider):
+        if isinstance(item_or_request, Request):
+            self._crawl(item_or_request, spider)
             return
-        print('Parsed {}'.format(response))
+        print('Parsed {}'.format(item_or_request))
 
     def _crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
