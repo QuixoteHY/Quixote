@@ -5,6 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 爬虫启动器
 
+import os
 import logging
 import time
 from threading import Thread
@@ -19,6 +20,7 @@ from quixote.utils.schedule_func import CallLaterOnce
 import tracemalloc
 
 tracemalloc.start()
+project_path = os.path.dirname(__file__)
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +31,14 @@ class CheckMemory(object):
 
     @staticmethod
     def _func():
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        print("[ Top 10 ]")
-        for stat in top_stats[:10]:
-            print(stat)
+        with open(project_path+'/logs/memory.log', 'a') as f:
+            snapshot = tracemalloc.take_snapshot()
+            top_stats = snapshot.statistics('lineno')
+            print('\n[ Top 10 ]')
+            f.write(f"\n[{time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))}] [ Top 10 ]\n")
+            for stat in top_stats[:10]:
+                print(stat)
+                f.write(str(stat)+'\n')
 
     def _heartbeat(self, interval):
         self.next_call.schedule()
