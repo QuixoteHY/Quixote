@@ -6,9 +6,8 @@
 # @Describe : 下载器
 
 import asyncio
-import aiohttp
 
-from quixote.protocol.response import Response
+from quixote.downloader.download_handlers import DownloadHandlers
 
 
 class Downloader(object):
@@ -17,7 +16,7 @@ class Downloader(object):
         self.settings = starter.settings
         self.slots = {}
         self.active = set()
-        self.handlers = None  # DownloadHandlers(crawler)
+        self.handlers = DownloadHandlers(starter)
         self.total_concurrency = self.settings['CONCURRENT_REQUESTS']
         self.domain_concurrency = self.settings['CONCURRENT_REQUESTS_PER_DOMAIN']
         self.ip_concurrency = self.settings['CONCURRENT_REQUESTS_PER_IP']
@@ -28,7 +27,11 @@ class Downloader(object):
 
     async def fetch(self, request, spider):
         self.active.add(request)
-        response = await self.download(request)
+        task = self.handlers.download_request(request, spider)
+        done, pending = await asyncio.wait({task})
+        response = None
+        if task in done:
+            response = task.result()
         self.active.remove(request)
         return response
 
@@ -37,35 +40,3 @@ class Downloader(object):
 
     def _enqueue_request(self):
         pass
-
-    @staticmethod
-    async def download(request):
-        print('Downloading {}'.format(request.url))
-        await asyncio.sleep(1)
-        return Response('url: '+request.url, request)
-
-    @staticmethod
-    async def get(url, headers=None, cookies=None, proxy=None, timeout=10):
-        if cookies:
-            session = aiohttp.ClientSession(cookies=cookies)
-        else:
-            session = aiohttp.ClientSession()
-        if proxy:
-            response = await session.get(url, headers=headers, proxy=proxy, timeout=timeout)
-        else:
-            response = await session.get(url, headers=headers, timeout=timeout)
-        await session.close()
-        return response
-
-    @staticmethod
-    async def post(url, headers=None, data=None, cookies=None, proxy=None, timeout=10):
-        if cookies:
-            session = aiohttp.ClientSession(cookies=cookies)
-        else:
-            session = aiohttp.ClientSession()
-        if proxy:
-            response = await session.post(url, headers=headers, data=data, proxy=proxy, timeout=timeout)
-        else:
-            response = await session.post(url, headers=headers, data=data, timeout=timeout)
-        await session.close()
-        return response

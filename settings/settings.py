@@ -18,3 +18,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 8
 CONCURRENT_REQUESTS_PER_IP = 0
 
 RANDOMIZE_DOWNLOAD_DELAY = True
+
+DOWNLOAD_HANDLERS = {}
+DOWNLOAD_HANDLERS_BASE = {
+    'http': 'quixote.downloader.download_handler.http_download_handler.HTTPDownloadHandler',
+    'https': 'quixote.downloader.download_handler.http_download_handler.HTTPDownloadHandler'
+}

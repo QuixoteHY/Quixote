@@ -11,6 +11,7 @@ import asyncio
 
 from quixote import loop
 from quixote.protocol.request import Request
+from quixote.protocol.response import Response
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
 
@@ -79,6 +80,10 @@ class Engine(object):
     async def _download(self, request, spider):
         try:
             response = await self.downloader.fetch(request, spider)
+            if not isinstance(response, Response):
+                # need to do something
+                # need to test the case when response is None
+                return
             self.heart.next_call.schedule()
             for item_or_request in request.callback(response):
                 self._handle_downloader_output(item_or_request, request, spider)
