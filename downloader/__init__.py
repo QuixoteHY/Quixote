@@ -25,6 +25,9 @@ class Downloader(object):
         # self._slot_gc_loop = task.LoopingCall(self._slot_gc)
         # self._slot_gc_loop.start(60)
 
+    async def close(self):
+        await self.handlers.close()
+
     async def fetch(self, request, spider):
         self.active.add(request)
         task = self.handlers.download_request(request, spider)

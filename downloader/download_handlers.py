@@ -25,6 +25,10 @@ class DownloadHandlers(object):
         for scheme, class_path in six.iteritems(handlers):
             self._schemes[scheme] = class_path
 
+    async def close(self):
+        for handler in self._handlers:
+            await handler.close()
+
     def _get_handler(self, scheme):
         if scheme in self._handlers:
             return self._handlers[scheme]

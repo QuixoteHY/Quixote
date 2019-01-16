@@ -13,12 +13,16 @@ from quixote.protocol.response import Response
 
 class HTTPDownloadHandler(object):
     def __init__(self, settings):
+        self.session = aiohttp.ClientSession()
         print(settings['DOWNLOAD_HANDLERS']['http'])
 
     def download_request(self, request, spider):
         task = asyncio.ensure_future(self.download(request, spider))
         task.add_done_callback(self.downloaded)
         return task
+
+    async def close(self):
+        await self.session.close()
 
     @staticmethod
     def downloaded(future):
