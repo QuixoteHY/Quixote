@@ -24,7 +24,7 @@ class TestSpider(Spider):
 
     def parse(self, response):
         time.sleep(0.05)
-        yield response.content
+        yield response.body
         # num = 0
         # while True:
         #     num += 1

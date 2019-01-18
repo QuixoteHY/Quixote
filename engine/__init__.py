@@ -96,7 +96,7 @@ class Engine(object):
         if isinstance(item_or_request, Request):
             self._crawl(item_or_request, spider)
             return
-        print('Parsed {}'.format(item_or_request))
+        print('Parsed {}'.format(item_or_request.decode()))
 
     def _crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)

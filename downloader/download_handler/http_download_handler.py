@@ -34,12 +34,12 @@ class HTTPDownloadHandler(object):
                                                  'cookies': request.cookies})
         text = await response.text()
         await asyncio.sleep(1.8)
-        return Response(text, request)
+        return Response(request.url, body=text.encode(), request=request)
 
     @staticmethod
     async def download(request, spider):
         await asyncio.sleep(2)
-        return Response(spider.name+': '+request.url, request)
+        return Response(spider.name+': '+request.url, request=request)
 
     @staticmethod
     async def get(url, headers=None, cookies=None, proxy=None, timeout=10):
