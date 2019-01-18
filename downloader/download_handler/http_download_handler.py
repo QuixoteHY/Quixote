@@ -17,7 +17,7 @@ class HTTPDownloadHandler(object):
         print(settings['DOWNLOAD_HANDLERS']['http'])
 
     def download_request(self, request, spider):
-        task = asyncio.ensure_future(self.download(request, spider))
+        task = asyncio.ensure_future(self._download(request, spider))
         task.add_done_callback(self.downloaded)
         return task
 
@@ -27,6 +27,14 @@ class HTTPDownloadHandler(object):
     @staticmethod
     def downloaded(future):
         print('Downloaded {}'.format(future.result().request.url))
+
+    async def _download(self, request, spider):
+        response = await self.session.request(request.method, request.url,
+                                              **{'headers': request.headers, 'data': request.body,
+                                                 'cookies': request.cookies})
+        text = await response.text()
+        await asyncio.sleep(1.8)
+        return Response(text, request)
 
     @staticmethod
     async def download(request, spider):

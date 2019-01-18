@@ -12,15 +12,15 @@ from quixote import Spider, Request
 
 class TestSpider(Spider):
     name = 'test'
-    count = 0
+    count = 1
 
     def start_requests(self):
-        url_list = ['http://www.baidu.com', 'http://www.youtube.com', 'http://www.google.com']
+        url_list = ['http://localhost:8000/reverse/0', 'http://localhost:8000/reverse/1']
         for url in url_list:
             yield Request(url=url, callback=self.parse)
         while True:
             self.count += 1
-            yield Request(url='https://github.com/QuixoteHY/' + str(self.count), callback=self.parse)
+            yield Request(url='http://localhost:8000/reverse/' + str(self.count), callback=self.parse)
 
     def parse(self, response):
         time.sleep(0.05)
