@@ -18,8 +18,8 @@ class Request(object):
     """
     封装HTTP请求相关信息
     """
-    def __init__(self, url, method='GET', headers=None, body=None, cookies=None, encoding='utf-8', meta=None,
-                 callback=None, errback=None, priority=0, dont_filter=False, flags=None):
+    def __init__(self, url, callback=None, method='GET', headers=None, body=None, cookies=None, encoding='utf-8',
+                 meta=None, errback=None, priority=0, dont_filter=False, flags=None):
         self._encoding = encoding
         self.method = str(method).upper()
         self._set_url(url)
