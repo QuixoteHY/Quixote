@@ -15,12 +15,12 @@ class TestSpider(Spider):
     count = 1
 
     def start_requests(self):
-        url_list = ['http://localhost:8000/reverse/0', 'http://localhost:8000/reverse/1']
+        url_list = ['http://localhost:8888/reverse/0', 'http://localhost:8888/reverse/1']
         for url in url_list:
             yield Request(url=url, callback=self.parse)
         while True:
             self.count += 1
-            yield Request(url='http://localhost:8000/reverse/' + str(self.count), callback=self.parse)
+            yield Request(url='http://localhost:8888/reverse/' + str(self.count), callback=self.parse)
 
     def parse(self, response):
         time.sleep(0.05)

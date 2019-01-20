@@ -40,29 +40,3 @@ class HTTPDownloadHandler(object):
     async def download(request, spider):
         await asyncio.sleep(2)
         return Response(spider.name+': '+request.url, request=request)
-
-    @staticmethod
-    async def get(url, headers=None, cookies=None, proxy=None, timeout=10):
-        if cookies:
-            session = aiohttp.ClientSession(cookies=cookies)
-        else:
-            session = aiohttp.ClientSession()
-        if proxy:
-            response = await session.get(url, headers=headers, proxy=proxy, timeout=timeout)
-        else:
-            response = await session.get(url, headers=headers, timeout=timeout)
-        await session.close()
-        return response
-
-    @staticmethod
-    async def post(url, headers=None, data=None, cookies=None, proxy=None, timeout=10):
-        if cookies:
-            session = aiohttp.ClientSession(cookies=cookies)
-        else:
-            session = aiohttp.ClientSession()
-        if proxy:
-            response = await session.post(url, headers=headers, data=data, proxy=proxy, timeout=timeout)
-        else:
-            response = await session.post(url, headers=headers, data=data, timeout=timeout)
-        await session.close()
-        return response

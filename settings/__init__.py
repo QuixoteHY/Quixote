@@ -25,9 +25,17 @@ class Settings(object):
 
         self.settings['RANDOMIZE_DOWNLOAD_DELAY'] = settings.RANDOMIZE_DOWNLOAD_DELAY
 
-        self.settings['DOWNLOAD_HANDLERS'] = settings.DOWNLOAD_HANDLERS
-        if not self.settings['DOWNLOAD_HANDLERS']:
-            self.settings['DOWNLOAD_HANDLERS'] = settings.DOWNLOAD_HANDLERS_BASE
+        download_handlers = settings.DOWNLOAD_HANDLERS_BASE
+        if settings.DOWNLOAD_HANDLERS:
+            self.settings['DOWNLOAD_HANDLERS'] = download_handlers.update(settings.DOWNLOAD_HANDLERS)
+        else:
+            self.settings['DOWNLOAD_HANDLERS'] = download_handlers
+
+        downloader_middlewares = settings.DOWNLOADER_MIDDLEWARES_BASE
+        if settings.DOWNLOADER_MIDDLEWARES:
+            self.settings['DOWNLOADER_MIDDLEWARES'] = downloader_middlewares.update(settings.DOWNLOADER_MIDDLEWARES)
+        else:
+            self.settings['DOWNLOADER_MIDDLEWARES'] = downloader_middlewares
 
     def get_settings(self):
         return copy.deepcopy(self.settings)
