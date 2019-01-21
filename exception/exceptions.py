@@ -3,10 +3,8 @@
 # @Author   : 胡远
 # @Github   : https://github.com/QuixoteHY
 # @Email    : 1290482442@qq.com
-# @Describe :
+# @Describe : Quixote core exceptions
 """
-Scrapy core exceptions
-
 These exceptions are documented in docs/topics/exceptions.rst. Please don't add
 new exceptions here without documenting them there.
 """

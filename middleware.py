@@ -29,15 +29,15 @@ class MiddlewareManager(object):
         raise NotImplementedError
 
     @classmethod
-    def from_settings(cls, settings, crawler=None):
+    def from_settings(cls, settings, starter=None):
         mwlist = cls._get_middleware_list_from_settings(settings)
         middlewares = []
         enabled = []
         for clspath in mwlist:
             try:
                 mwcls = load_object(clspath)
-                if crawler and hasattr(mwcls, 'from_crawler'):
-                    mw = mwcls.from_crawler(crawler)
+                if starter and hasattr(mwcls, 'from_crawler'):
+                    mw = mwcls.from_crawler(starter)
                 elif hasattr(mwcls, 'from_settings'):
                     mw = mwcls.from_settings(settings)
                 else:
@@ -47,17 +47,16 @@ class MiddlewareManager(object):
             except NotConfigured as e:
                 if e.args:
                     clsname = clspath.split('.')[-1]
-                    logger.warning("Disabled %(clsname)s: %(eargs)s",
-                                   {'clsname': clsname, 'eargs': e.args[0]},
-                                   extra={'crawler': crawler})
+                    logger.warning("Disabled %(clsname)s: %(eargs)s", {'clsname': clsname, 'eargs': e.args[0]},
+                                   extra={'starter': starter})
         logger.info("Enabled %(componentname)ss:\n%(enabledlist)s", {'componentname': cls.component_name,
                                                                      'enabledlist': pprint.pformat(enabled)},
-                    extra={'crawler': crawler})
+                    extra={'starter': starter})
         return cls(*middlewares)
 
     @classmethod
-    def from_crawler(cls, crawler):
-        return cls.from_settings(crawler.settings, crawler)
+    def from_starter(cls, starter):
+        return cls.from_settings(starter.settings, starter)
 
     def _add_middleware(self, mw):
         if hasattr(mw, 'open_spider'):

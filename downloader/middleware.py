@@ -5,12 +5,16 @@
 # @Email    : 1290482442@qq.com
 # @Describe : Downloader Middleware manager
 
+import logging
 import six
 
 from twisted.internet import defer
 
 from quixote.protocol import Request, Response
+from quixote.exception.error import ErrorSettings
 from quixote.middleware import MiddlewareManager
+
+logger = logging.getLogger(__name__)
 
 
 class DownloaderMiddlewareManager(MiddlewareManager):
@@ -18,7 +22,21 @@ class DownloaderMiddlewareManager(MiddlewareManager):
 
     @classmethod
     def _get_middleware_list_from_settings(cls, settings):
-        return build_component_list(settings.getwithbase('DOWNLOADER_MIDDLEWARES'))
+        mw_dict = settings['DOWNLOADER_MIDDLEWARES']
+        preprocess_mw_dict = dict()
+        for k, v in mw_dict.items():
+            if not v:
+                continue
+            if isinstance(v, int):
+                preprocess_mw_dict[k] = v
+            else:
+                logger.error('There is an error in your settings file.\nThe variable DOWNLOADER_MIDDLEWARES error.')
+                raise ErrorSettings('Settings DOWNLOADER_MIDDLEWARES error: '+str((k, v)))
+        sorted_mw_list = sorted(preprocess_mw_dict.items(), key=lambda x: x[1], reverse=False)
+        mw_list = list()
+        for mw in sorted_mw_list:
+            mw_list.append(mw[0])
+        return mw_list
 
     def _add_middleware(self, mw):
         if hasattr(mw, 'process_request'):

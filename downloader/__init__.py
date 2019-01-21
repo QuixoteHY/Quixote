@@ -7,6 +7,7 @@
 
 import asyncio
 
+from quixote.downloader.middleware import DownloaderMiddlewareManager
 from quixote.downloader.download_handlers import DownloadHandlers
 
 
@@ -21,7 +22,7 @@ class Downloader(object):
         self.domain_concurrency = self.settings['CONCURRENT_REQUESTS_PER_DOMAIN']
         self.ip_concurrency = self.settings['CONCURRENT_REQUESTS_PER_IP']
         self.randomize_delay = self.settings['RANDOMIZE_DOWNLOAD_DELAY']
-        self.middleware = None  # DownloaderMiddlewareManager.from_crawler(crawler)
+        self.middleware = DownloaderMiddlewareManager.from_starter(starter)
         # self._slot_gc_loop = task.LoopingCall(self._slot_gc)
         # self._slot_gc_loop.start(60)
 
