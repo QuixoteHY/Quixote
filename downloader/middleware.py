@@ -46,6 +46,37 @@ class DownloaderMiddlewareManager(MiddlewareManager):
         if hasattr(mw, 'process_exception'):
             self.methods['process_exception'].insert(0, mw.process_exception)
 
+    def process_request(self, request, spider):
+        for method in self.methods['process_request']:
+            response = method(request=request, spider=spider)
+            assert response is None or isinstance(response, (Response, Request)), \
+                'Middleware %s.process_request must return None, Response or Request, got %s' % \
+                (six.get_method_self(method).__class__.__name__, response.__class__.__name__)
+            if response:
+                return
+
+    def process_response(self, request, response, spider):
+        assert response is not None, 'Received None in process_response'
+        if isinstance(response, Request):
+            return
+        for method in self.methods['process_response']:
+            response = method(request=request, response=response, spider=spider)
+            assert isinstance(response, (Response, Request)), \
+                'Middleware %s.process_response must return Response or Request, got %s' % \
+                (six.get_method_self(method).__class__.__name__, type(response))
+            if isinstance(response, Request):
+                return
+
+    def process_exception(self, request, spider, _failure):
+        exception = _failure.value
+        for method in self.methods['process_exception']:
+            response = method(request=request, exception=exception, spider=spider)
+            assert response is None or isinstance(response, (Response, Request)), \
+                'Middleware %s.process_exception must return None, Response or Request, got %s' % \
+                (six.get_method_self(method).__class__.__name__, type(response))
+            if response:
+                return
+
     def download(self, download_func, request, spider):
         @defer.inlineCallbacks
         def process_request(request):
@@ -56,17 +87,15 @@ class DownloaderMiddlewareManager(MiddlewareManager):
                     (six.get_method_self(method).__class__.__name__, response.__class__.__name__)
                 if response:
                     defer.returnValue(response)
-            defer.returnValue((yield download_func(request=request,spider=spider)))
+            defer.returnValue((yield download_func(request=request, spider=spider)))
 
         @defer.inlineCallbacks
         def process_response(response):
             assert response is not None, 'Received None in process_response'
             if isinstance(response, Request):
                 defer.returnValue(response)
-
             for method in self.methods['process_response']:
-                response = yield method(request=request, response=response,
-                                        spider=spider)
+                response = yield method(request=request, response=response, spider=spider)
                 assert isinstance(response, (Response, Request)), \
                     'Middleware %s.process_response must return Response or Request, got %s' % \
                     (six.get_method_self(method).__class__.__name__, type(response))
@@ -78,16 +107,10 @@ class DownloaderMiddlewareManager(MiddlewareManager):
         def process_exception(_failure):
             exception = _failure.value
             for method in self.methods['process_exception']:
-                response = yield method(request=request, exception=exception,
-                                        spider=spider)
+                response = yield method(request=request, exception=exception, spider=spider)
                 assert response is None or isinstance(response, (Response, Request)), \
                     'Middleware %s.process_exception must return None, Response or Request, got %s' % \
                     (six.get_method_self(method).__class__.__name__, type(response))
                 if response:
                     defer.returnValue(response)
             defer.returnValue(_failure)
-
-        deferred = mustbe_deferred(process_request, request)
-        deferred.addErrback(process_exception)
-        deferred.addCallback(process_response)
-        return deferred
