@@ -8,7 +8,7 @@
 import logging
 import six
 
-from twisted.internet import defer
+import asyncio
 
 from quixote.protocol import Request, Response
 from quixote.exception.error import ErrorSettings
@@ -46,71 +46,48 @@ class DownloaderMiddlewareManager(MiddlewareManager):
         if hasattr(mw, 'process_exception'):
             self.methods['process_exception'].insert(0, mw.process_exception)
 
-    def process_request(self, request, spider):
-        for method in self.methods['process_request']:
-            response = method(request=request, spider=spider)
-            assert response is None or isinstance(response, (Response, Request)), \
-                'Middleware %s.process_request must return None, Response or Request, got %s' % \
-                (six.get_method_self(method).__class__.__name__, response.__class__.__name__)
-            if response:
-                return
-
-    def process_response(self, request, response, spider):
-        assert response is not None, 'Received None in process_response'
-        if isinstance(response, Request):
-            return
-        for method in self.methods['process_response']:
-            response = method(request=request, response=response, spider=spider)
-            assert isinstance(response, (Response, Request)), \
-                'Middleware %s.process_response must return Response or Request, got %s' % \
-                (six.get_method_self(method).__class__.__name__, type(response))
-            if isinstance(response, Request):
-                return
-
-    def process_exception(self, request, spider, _failure):
-        exception = _failure.value
-        for method in self.methods['process_exception']:
-            response = method(request=request, exception=exception, spider=spider)
-            assert response is None or isinstance(response, (Response, Request)), \
-                'Middleware %s.process_exception must return None, Response or Request, got %s' % \
-                (six.get_method_self(method).__class__.__name__, type(response))
-            if response:
-                return
-
-    def download(self, download_func, request, spider):
-        @defer.inlineCallbacks
-        def process_request(request):
+    async def download(self, download_func, request, spider):
+        async def process_request(_request):
             for method in self.methods['process_request']:
-                response = yield method(request=request, spider=spider)
+                response = await method(request=_request, spider=spider)
                 assert response is None or isinstance(response, (Response, Request)), \
                     'Middleware %s.process_request must return None, Response or Request, got %s' % \
                     (six.get_method_self(method).__class__.__name__, response.__class__.__name__)
                 if response:
-                    defer.returnValue(response)
-            defer.returnValue((yield download_func(request=request, spider=spider)))
+                    return response
+            return await download_func(_request, spider)
 
-        @defer.inlineCallbacks
-        def process_response(response):
+        async def process_response(response):
             assert response is not None, 'Received None in process_response'
             if isinstance(response, Request):
-                defer.returnValue(response)
+                return Request
             for method in self.methods['process_response']:
-                response = yield method(request=request, response=response, spider=spider)
+                response = await method(request=request, response=response, spider=spider)
                 assert isinstance(response, (Response, Request)), \
                     'Middleware %s.process_response must return Response or Request, got %s' % \
                     (six.get_method_self(method).__class__.__name__, type(response))
                 if isinstance(response, Request):
-                    defer.returnValue(response)
-            defer.returnValue(response)
+                    return Request
+            return response
 
-        @defer.inlineCallbacks
-        def process_exception(_failure):
-            exception = _failure.value
-            for method in self.methods['process_exception']:
-                response = yield method(request=request, exception=exception, spider=spider)
-                assert response is None or isinstance(response, (Response, Request)), \
-                    'Middleware %s.process_exception must return None, Response or Request, got %s' % \
-                    (six.get_method_self(method).__class__.__name__, type(response))
-                if response:
-                    defer.returnValue(response)
-            defer.returnValue(_failure)
+        # def process_exception(_failure):
+        #     exception = _failure.value
+        #     for method in self.methods['process_exception']:
+        #         response = method(request=request, exception=exception, spider=spider)
+        #         assert response is None or isinstance(response, (Response, Request)), \
+        #             'Middleware %s.process_exception must return None, Response or Request, got %s' % \
+        #             (six.get_method_self(method).__class__.__name__, type(response))
+        #         if response:
+        #             return
+
+        task = asyncio.ensure_future(process_request(request))
+        task.add_done_callback(process_response)
+        return task
+        # response = await self.process_request(request, spider)
+        # if response:
+        #     if isinstance(response, Response):
+        #         await self.process_response(request, response, spider)
+        #     if isinstance(response, Request):
+        #         return response
+        # else:
+        #     return download_func(request, response)

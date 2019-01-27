@@ -2,13 +2,19 @@ import asyncio
 
 
 async def task(text):
-    await asyncio.sleep(1)
+    # await asyncio.sleep(1)
     print(text)
     return text
 
 
 async def task1(text):
-    await asyncio.sleep(1)
+    # await asyncio.sleep(1)
+    print(text)
+    return text
+
+
+async def task11(text):
+    a = await task1(text)
     print(text)
     return text
 

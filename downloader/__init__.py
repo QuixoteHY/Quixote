@@ -31,7 +31,8 @@ class Downloader(object):
 
     async def fetch(self, request, spider):
         self.active.add(request)
-        task = self.handlers.download_request(request, spider)
+        # task = self.handlers.download_request(request, spider)
+        task = await self.middleware.download(self._enqueue_request, request, spider)
         done, pending = await asyncio.wait({task})
         response = None
         if task in done:
@@ -42,5 +43,10 @@ class Downloader(object):
     def needs_slowdown(self):
         return len(self.active) >= self.total_concurrency
 
-    def _enqueue_request(self):
-        pass
+    async def _enqueue_request(self, request, spider):
+        task = self.handlers.download_request(request, spider)
+        done, pending = await asyncio.wait({task})
+        response = None
+        if task in done:
+            response = task.result()
+        return response

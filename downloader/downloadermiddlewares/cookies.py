@@ -30,7 +30,7 @@ class CookiesMiddleware(object):
             raise NotConfigured
         return cls(crawler.settings.getbool('COOKIES_DEBUG'))
 
-    def process_request(self, request, spider):
+    async def process_request(self, request, spider):
         if request.meta.get('dont_merge_cookies', False):
             return
         cookiejarkey = request.meta.get("cookiejar")
@@ -43,7 +43,7 @@ class CookiesMiddleware(object):
         jar.add_cookie_header(request)
         self._debug_cookie(request, spider)
 
-    def process_response(self, request, response, spider):
+    async def process_response(self, request, response, spider):
         if request.meta.get('dont_merge_cookies', False):
             return response
         # extract cookies from Set-Cookie and drop invalid/expired cookies
