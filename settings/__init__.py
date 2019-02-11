@@ -37,6 +37,9 @@ class Settings(object):
         else:
             self.settings['DOWNLOADER_MIDDLEWARES'] = downloader_middlewares
 
+        self.settings['COOKIES_ENABLED'] = settings.COOKIES_ENABLED
+        self.settings['COOKIES_DEBUG'] = settings.COOKIES_DEBUG
+
     def get_settings(self):
         return copy.deepcopy(self.settings)
 

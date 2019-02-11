@@ -25,10 +25,9 @@ DOWNLOAD_HANDLERS_BASE = {
     'https': 'quixote.downloader.download_handler.http_download_handler.HTTPDownloadHandler'
 }
 
-
 DOWNLOADER_MIDDLEWARES = {}
 DOWNLOADER_MIDDLEWARES_BASE = {
-    'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': 700,
+    'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': None,
 }
 # DOWNLOADER_MIDDLEWARES_BASE = {
 #     # Engine side
@@ -48,3 +47,6 @@ DOWNLOADER_MIDDLEWARES_BASE = {
 #     'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': 900,
 #     # Downloader side
 # }
+
+COOKIES_ENABLED = False
+COOKIES_DEBUG = False

@@ -30,8 +30,9 @@ class HTTPDownloadHandler(object):
 
     async def _download(self, request, spider):
         response = await self.session.request(request.method, request.url,
-                                              **{'headers': request.headers, 'data': request.body,
-                                                 'cookies': request.cookies})
+                                              # **{'headers': request.headers, 'data': request.body,
+                                              #    'cookies': request.cookies})
+                                              **{'headers': request.headers, 'data': request.body})
         text = await response.text()
         await asyncio.sleep(1.8)
         return Response(request.url, body=text.encode(), request=request)

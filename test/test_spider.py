@@ -12,15 +12,19 @@ from quixote import Spider, Request
 
 class TestSpider(Spider):
     name = 'test'
-    count = 1
+    count = 0
+    # server_ip = 'localhost'
+    server_ip = '119.29.152.194'
+    server_host = '8888'
 
     def start_requests(self):
-        url_list = ['http://localhost:8888/reverse/0', 'http://localhost:8888/reverse/1']
-        for url in url_list:
-            yield Request(url=url, callback=self.parse)
+        # url_list = ['http://localhost:8888/reverse/0', 'http://localhost:8888/reverse/1']
+        # for url in url_list:
+        #     yield Request(url=url, callback=self.parse)
         while True:
             self.count += 1
-            yield Request(url='http://localhost:8888/reverse/' + str(self.count), callback=self.parse)
+            yield Request(url='http://'+self.server_ip+':'+self.server_host+'/reverse/'+str(self.count),
+                          callback=self.parse)
 
     def parse(self, response):
         time.sleep(0.05)
