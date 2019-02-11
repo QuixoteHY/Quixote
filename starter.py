@@ -91,7 +91,7 @@ class Starter(object):
 
 
 def main():
-    s = Starter('quixote.test.test_spider.TestSpider')
+    s = Starter('quixote.test.test_spider.test_spider.TestSpider')
     s.start()
 
 

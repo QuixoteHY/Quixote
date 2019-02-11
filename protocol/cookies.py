@@ -6,18 +6,15 @@
 # @Describe :
 
 import time
-import re
-from six.moves.http_cookiejar import CookieJar as _CookieJar, DefaultCookiePolicy
+from six.moves import http_cookiejar
 from scrapy.utils.httpobj import urlparse_cached
 from scrapy.utils.python import to_native_str
-
-IPV4_RE = re.compile(r"\.\d+$", re.ASCII)
 
 
 class CookieJar(object):
     def __init__(self, policy=None, check_expired_frequency=10000):
-        self.policy = policy or DefaultCookiePolicy()
-        self.jar = _CookieJar(self.policy)
+        self.policy = policy or http_cookiejar.DefaultCookiePolicy()
+        self.jar = http_cookiejar.CookieJar(self.policy)
         self.jar._cookies_lock = _DummyLock()
         self.check_expired_frequency = check_expired_frequency
         self.processed = 0
@@ -37,7 +34,7 @@ class CookieJar(object):
         if not req_host:
             return
 
-        if not IPV4_RE.search(req_host):
+        if not http_cookiejar.IPV4_RE.search(req_host):
             hosts = potential_domain_matches(req_host)
             if '.' not in req_host:
                 hosts += [req_host + ".local"]
@@ -63,8 +60,8 @@ class CookieJar(object):
     def _cookies(self):
         return self.jar._cookies
 
-    def clear_session_cookies(self, *args, **kwargs):
-        return self.jar.clear_session_cookies(*args, **kwargs)
+    def clear_session_cookies(self):
+        return self.jar.clear_session_cookies()
 
     def clear(self):
         return self.jar.clear()

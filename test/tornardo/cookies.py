@@ -1,5 +1,7 @@
 # https://blog.csdn.net/midion9/article/details/51332973
 
+# curl -L -e '; auto' http://localhost:8000/
+
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
@@ -13,7 +15,9 @@ define("port", default=8000, help="run on the given port", type=int)
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        return self.get_secure_cookie("username")
+        temp = self.get_secure_cookie("username")
+        print('get_current_user: '+temp)
+        return temp
 
 
 class LoginHandler(BaseHandler):
@@ -33,7 +37,7 @@ class WelcomeHandler(BaseHandler):
 
 class LogoutHandler(BaseHandler):
     def get(self):
-        if (self.get_argument("logout", None)):
+        if self.get_argument("logout", None):
             self.clear_cookie("username")
             self.redirect("/")
 
