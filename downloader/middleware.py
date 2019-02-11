@@ -47,6 +47,7 @@ class DownloaderMiddlewareManager(MiddlewareManager):
             self.methods['process_exception'].insert(0, mw.process_exception)
 
     async def download(self, download_func, request, spider):
+
         async def process_request(_request):
             for method in self.methods['process_request']:
                 response = await method(request=_request, spider=spider)
