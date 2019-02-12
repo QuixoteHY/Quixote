@@ -8,13 +8,13 @@
 import asyncio
 import aiohttp
 
-from quixote.protocol.response import Response
+from quixote.protocol.response.html import HtmlResponse
 
 
 class HTTPDownloadHandler(object):
     def __init__(self, settings):
         self.session = aiohttp.ClientSession()
-        print(settings['DOWNLOAD_HANDLERS']['http'])
+        # print(settings['DOWNLOAD_HANDLERS']['http'])
 
     def download_request(self, request, spider):
         task = asyncio.ensure_future(self._download(request, spider))
@@ -30,14 +30,8 @@ class HTTPDownloadHandler(object):
 
     async def _download(self, request, spider):
         response = await self.session.request(request.method, request.url,
-                                              # **{'headers': request.headers, 'data': request.body,
-                                              #    'cookies': request.cookies})
-                                              **{'headers': request.headers, 'data': request.body})
-        text = await response.text()
+                                              **{'headers': request.headers.get_aiohttp_headers(),
+                                                 'data': request.body})
+        content = await response.read()
         await asyncio.sleep(1.8)
-        return Response(request.url, body=text.encode(), request=request)
-
-    @staticmethod
-    async def download(request, spider):
-        await asyncio.sleep(2)
-        return Response(spider.name+': '+request.url, request=request)
+        return HtmlResponse(request.url, body=content, request=request)

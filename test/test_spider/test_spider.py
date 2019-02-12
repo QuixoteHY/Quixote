@@ -22,6 +22,8 @@ class TestSpider(Spider):
         # for url in url_list:
         #     yield Request(url=url, callback=self.parse)
         while True:
+            # if self.count == 100:
+            #     break
             self.count += 1
             yield Request(url='http://'+self.server_ip+':'+self.server_host+'/reverse/'+str(self.count),
                           callback=self.parse)

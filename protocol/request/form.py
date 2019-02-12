@@ -18,14 +18,11 @@ from quixote.utils.response import get_base_url
 
 
 class FormRequest(Request):
-
     def __init__(self, *args, **kwargs):
         formdata = kwargs.pop('formdata', None)
         if formdata and kwargs.get('method') is None:
             kwargs['method'] = 'POST'
-
         super(FormRequest, self).__init__(*args, **kwargs)
-
         if formdata:
             items = formdata.items() if isinstance(formdata, dict) else formdata
             querystr = _urlencode(items, self.encoding)
@@ -38,15 +35,12 @@ class FormRequest(Request):
     @classmethod
     def from_response(cls, response, formname=None, formid=None, formnumber=0, formdata=None,
                       clickdata=None, dont_click=False, formxpath=None, formcss=None, **kwargs):
-
         kwargs.setdefault('encoding', response.encoding)
-
         if formcss is not None:
             from parsel.csstranslator import HTMLTranslator
             formxpath = HTMLTranslator().css_to_xpath(formcss)
-
         form = _get_form(response, formname, formid, formnumber, formxpath)
-        formdata = _get_inputs(form, formdata, dont_click, clickdata, response)
+        formdata = _get_inputs(form, formdata, dont_click, clickdata)
         url = _get_form_url(form, kwargs.pop('url', None))
         method = kwargs.pop('method', form.method)
         return cls(url=url, method=method, formdata=formdata, **kwargs)
@@ -70,22 +64,18 @@ def _urlencode(seq, enc):
 
 def _get_form(response, formname, formid, formnumber, formxpath):
     """Find the form element """
-    root = create_root_node(response.text, lxml.html.HTMLParser,
-                            base_url=get_base_url(response))
+    root = create_root_node(response.text, lxml.html.HTMLParser, base_url=get_base_url(response))
     forms = root.xpath('//form')
     if not forms:
         raise ValueError("No <form> element found in %s" % response)
-
     if formname is not None:
         f = root.xpath('//form[@name="%s"]' % formname)
         if f:
             return f[0]
-
     if formid is not None:
         f = root.xpath('//form[@id="%s"]' % formid)
         if f:
             return f[0]
-
     # Get form element from xpath, if not found, go up
     if formxpath is not None:
         nodes = root.xpath(formxpath)
@@ -99,7 +89,6 @@ def _get_form(response, formname, formid, formnumber, formxpath):
                     break
         encoded = formxpath if six.PY3 else formxpath.encode('unicode_escape')
         raise ValueError('No <form> element found with %s' % encoded)
-
     # If we get here, it means that either formname was None
     # or invalid
     if formnumber is not None:
@@ -112,12 +101,11 @@ def _get_form(response, formname, formid, formnumber, formxpath):
             return form
 
 
-def _get_inputs(form, formdata, dont_click, clickdata, response):
+def _get_inputs(form, formdata, dont_click, clickdata):
     try:
         formdata = dict(formdata or ())
     except (ValueError, TypeError):
         raise ValueError('formdata should be a dict or iterable of tuples')
-
     inputs = form.xpath('descendant::textarea'
                         '|descendant::select'
                         '|descendant::input[not(@type) or @type['
@@ -129,12 +117,10 @@ def _get_inputs(form, formdata, dont_click, clickdata, response):
     values = [(k, u'' if v is None else v)
               for k, v in (_value(e) for e in inputs)
               if k and k not in formdata]
-
     if not dont_click:
         clickable = _get_clickable(clickdata, form)
         if clickable and clickable[0] not in formdata and not clickable[0] is None:
             values.append(clickable)
-
     values.extend((k, v) for k, v in formdata.items() if v is not None)
     return values
 
@@ -177,12 +163,10 @@ def _get_clickable(clickdata, form):
         ]
     if not clickables:
         return
-
     # If we don't have clickdata, we just use the first clickable element
     if clickdata is None:
         el = clickables[0]
-        return (el.get('name'), el.get('value') or '')
-
+        return el.get('name'), el.get('value') or ''
     # If clickdata is given, we compare it to the clickable elements to find a
     # match. We first look to see if the number is specified in clickdata,
     # because that uniquely identifies the element
@@ -193,17 +177,15 @@ def _get_clickable(clickdata, form):
         except IndexError:
             pass
         else:
-            return (el.get('name'), el.get('value') or '')
-
+            return el.get('name'), el.get('value') or ''
     # We didn't find it, so now we build an XPath expression out of the other
     # arguments, because they can be used as such
     xpath = u'.//*' + \
             u''.join(u'[@%s="%s"]' % c for c in six.iteritems(clickdata))
     el = form.xpath(xpath)
     if len(el) == 1:
-        return (el[0].get('name'), el[0].get('value') or '')
+        return el[0].get('name'), el[0].get('value') or ''
     elif len(el) > 1:
-        raise ValueError("Multiple elements found (%r) matching the criteria "
-                         "in clickdata: %r" % (el, clickdata))
+        raise ValueError("Multiple elements found (%r) matching the criteria in clickdata: %r" % (el, clickdata))
     else:
         raise ValueError('No clickable element matching clickdata: %r' % (clickdata,))

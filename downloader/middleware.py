@@ -58,12 +58,12 @@ class DownloaderMiddlewareManager(MiddlewareManager):
                     return response
             return await download_func(_request, spider)
 
-        async def process_response(response):
+        def process_response(response):
             assert response is not None, 'Received None in process_response'
             if isinstance(response, Request):
                 return Request
             for method in self.methods['process_response']:
-                response = await method(request=request, response=response, spider=spider)
+                response = method(request=request, response=response, spider=spider)
                 assert isinstance(response, (Response, Request)), \
                     'Middleware %s.process_response must return Response or Request, got %s' % \
                     (six.get_method_self(method).__class__.__name__, type(response))

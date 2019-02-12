@@ -21,6 +21,9 @@ from quixote.protocol.response import Response
 from quixote.utils.response import get_base_url
 from quixote.utils.python import memoizemethod_noargs, to_native_str
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class TextResponse(Response):
     _DEFAULT_ENCODING = 'ascii'

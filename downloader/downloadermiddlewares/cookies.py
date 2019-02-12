@@ -14,6 +14,7 @@ from quixote.protocol import Response
 from quixote.protocol.cookies import CookieJar
 from quixote.utils.python import to_native_str
 
+import asyncio
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +44,7 @@ class CookiesMiddleware(object):
         jar.add_cookie_header(request)
         self._debug_cookie(request, spider)
 
-    async def process_response(self, request, response, spider):
+    def process_response(self, request, response, spider):
         if request.meta.get('dont_merge_cookies', False):
             return response
         # extract cookies from Set-Cookie and drop invalid/expired cookies

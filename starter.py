@@ -49,7 +49,7 @@ class CheckMemory(object):
 
 
 class Starter(object):
-    def __init__(self, spider_class, settings_class=None):
+    def __init__(self, spider_class, settings_class=None, is_check_emmory=False):
         if settings_class:
             self.settings = Settings(load_object(settings_class)).get_settings()
         else:
@@ -61,6 +61,7 @@ class Starter(object):
         self.engine = None
         self.spider = None
         self.crawling = False
+        self.is_check_emmory = is_check_emmory
 
     @staticmethod
     def _start():
@@ -73,8 +74,9 @@ class Starter(object):
         # t.setDaemon(True)
         # t.start()
         try:
-            cm = CheckMemory()
-            cm.start(60)
+            if self.is_check_emmory:
+                cm = CheckMemory()
+                cm.start(60)
             self.spider = self._create_spider()
             self.engine = self._create_engine()
             self.engine.start(self.spider)
@@ -91,7 +93,7 @@ class Starter(object):
 
 
 def main():
-    s = Starter('quixote.test.test_spider.test_spider.TestSpider')
+    s = Starter('quixote.test.test_spider.test_spider.TestSpider', is_check_emmory=True)
     s.start()
 
 

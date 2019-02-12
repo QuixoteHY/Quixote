@@ -17,6 +17,12 @@ class Headers(CaselessDict):
         self.encoding = encoding
         super(Headers, self).__init__(seq)
 
+    def get_aiohttp_headers(self):
+        str_dict = dict()
+        for k, v in self.items():
+            str_dict[str(k, encoding=self.encoding)] = str(v[0], encoding=self.encoding)
+        return str_dict
+
     def normkey(self, key):
         """Normalize key to bytes"""
         return self._tobytes(key.title())

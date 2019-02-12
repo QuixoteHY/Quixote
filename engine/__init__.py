@@ -88,7 +88,7 @@ class Engine(object):
             for item_or_request in request.callback(response):
                 self._handle_downloader_output(item_or_request, request, spider)
         except Exception as e:
-            print(e)
+            print(logger.exception(e))
         finally:
             self.heart.next_call.schedule()
 
