@@ -1,6 +1,6 @@
 
 import asyncio
-from quixote import Response
+from quixote.protocol.response import Response
 
 
 async def aa():

@@ -1,7 +1,5 @@
 
 import asyncio
-from asyncio.base_futures import _PENDING
-from quixote import Response
 
 
 async def aa():

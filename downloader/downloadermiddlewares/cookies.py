@@ -14,7 +14,6 @@ from quixote.protocol import Response
 from quixote.protocol.cookies import CookieJar
 from quixote.utils.python import to_native_str
 
-import asyncio
 logger = logging.getLogger(__name__)
 
 

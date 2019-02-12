@@ -1,6 +1,5 @@
 
 import asyncio
-from quixote import Response
 
 
 async def aa():
@@ -13,9 +12,15 @@ def callback(future):
     # future.result().url = future.result().url+'*'*10
 
 
+async def cc(future):
+    print('response.url: '+future.result())
+    await asyncio.sleep(1)
+
+
 async def run():
     task = asyncio.ensure_future(aa())
-    task.add_done_callback(callback)
+    # task.add_done_callback(callback)
+    task.add_done_callback(cc)
 
     done, pending = await asyncio.wait({task})
     response = None
