@@ -48,5 +48,5 @@ DOWNLOADER_MIDDLEWARES_BASE = {
 #     # Downloader side
 # }
 
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 COOKIES_DEBUG = False
