@@ -12,11 +12,16 @@ from tornado.options import define, options
 
 define("port", default=8000, help="run on the given port", type=int)
 
+check_dict = {
+    'huyuan': 'hy195730',
+    'quixote': '123456789',
+}
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         temp = self.get_secure_cookie("username")
-        print('get_current_user: '+temp)
+        print('get_current_user: '+str(temp))
         return temp
 
 
@@ -25,14 +30,27 @@ class LoginHandler(BaseHandler):
         self.render('login.html')
 
     def post(self):
-        self.set_secure_cookie("username", self.get_argument("username"))
-        self.redirect("/")
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+        if username in check_dict and password == check_dict[username]:
+            self.set_secure_cookie("username", username)
+            self.redirect("/")
+        else:
+            self.redirect("/login")
 
 
 class WelcomeHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         self.render('index.html', user=self.current_user)
+
+
+class TestCookiesHandler(BaseHandler):
+    # http://localhost:8000/test_cookies/34232534
+    @tornado.web.authenticated
+    def get(self, input_number):
+        # self.write("Welcome to quixote, your number is %s." % str(input_number))
+        self.render('test_cookies.html', user=self.current_user, input_number=str(input_number))
 
 
 class LogoutHandler(BaseHandler):
@@ -55,7 +73,8 @@ if __name__ == "__main__":
     application = tornado.web.Application([
         (r'/', WelcomeHandler),
         (r'/login', LoginHandler),
-        (r'/logout', LogoutHandler)
+        (r'/logout', LogoutHandler),
+        (r"/test_cookies/(\w+)", TestCookiesHandler),
     ], **settings)
 
     http_server = tornado.httpserver.HTTPServer(application)

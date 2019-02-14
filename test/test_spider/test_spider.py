@@ -18,6 +18,7 @@ class TestSpider(Spider):
     server_host = '8888'
 
     def start_requests(self):
+        # 'http://119.29.152.194:8888/reverse/5343534'
         # url_list = ['http://localhost:8888/reverse/0', 'http://localhost:8888/reverse/1']
         # for url in url_list:
         #     yield Request(url=url, callback=self.parse)
