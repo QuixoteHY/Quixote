@@ -34,7 +34,7 @@ class LoginHandler(BaseHandler):
         password = self.get_argument("password")
         if username in check_dict and password == check_dict[username]:
             self.set_secure_cookie("username", username)
-            self.redirect("/")
+            self.redirect("/welcome")
         else:
             self.redirect("/login")
 
@@ -72,6 +72,7 @@ if __name__ == "__main__":
 
     application = tornado.web.Application([
         (r'/', WelcomeHandler),
+        (r'/welcome', WelcomeHandler),
         (r'/login', LoginHandler),
         (r'/logout', LogoutHandler),
         (r"/test_cookies/(\w+)", TestCookiesHandler),
