@@ -64,9 +64,37 @@ async def fetch2():
             res2.close()
 
 
+async def fetch3():
+    async with aiohttp.ClientSession() as session:
+        login_url = 'https://www.dongmengdai.com/index.php?user&q=action/login'
+        async with session.get(login_url, headers=header) as res:
+            print('begin_login: ' + str(res.url))
+        login_data = {
+            "keywords": "15972920500",
+            "password": "hy195730"
+        }
+        async with session.post(login_url, headers=header, data=login_data) as res:
+            res_url = str(res.url)
+            print('do_login: ' + res_url)
+            if "index.php?user" in res_url:
+                print('登录成功')
+            else:
+                print("登录失败")
+                return
+        for start_url in start_urls:
+            res2 = await session.get(start_url, headers=header)
+            print('is_login: ' + str(res2.url))
+            text = await res2.text()
+            with open('/Users/muyichun/PycharmProjects/socialpeta/quixote/logs/html/zz.html', 'w',
+                      encoding=res2.charset) as f:
+                f.write(text)
+            res2.close()
+
+
 loop = asyncio.get_event_loop()
 # tasks = [fetch(), ]
-tasks = [fetch2(), ]
+# tasks = [fetch2(), ]
+tasks = [fetch3(), ]
 loop.run_until_complete(asyncio.wait(tasks))
 
 loop.run_until_complete(asyncio.sleep(1))
