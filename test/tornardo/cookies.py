@@ -8,6 +8,7 @@ import tornado.web
 import tornado.options
 import os.path
 import time
+import datetime
 
 from tornado.web import HTTPError, _time_independent_equals, utf8
 
@@ -29,10 +30,23 @@ class BaseHandler(tornado.web.RequestHandler):
         print('get_current_user: '+str(temp))
         return temp
 
+    def clear_cookie(self, name, path="/", domain=None):
+        print('----- name=', name)
+        expires = datetime.datetime.utcnow() - datetime.timedelta(days=365)
+        self.set_cookie(name, value="", path=path, expires=expires, domain=domain)
+
+    def clear_all_cookies(self, path="/", domain=None):
+        print('-'*30+' clear_all_cookies')
+        print('-', self.request.cookies)
+        for name in self.request.cookies:
+            self.clear_cookie(name, path=path, domain=domain)
+        print('-'*30+' clear_all_cookies')
+
     def set_secure_cookie(self, name, value, expires_days=30, version=None, **kwargs):
         print('-'*30+' set_secure_cookie')
         print('- name=', name, ' value=', value)
-        self.set_cookie(name, self.create_signed_value(name, value, version=version), expires_days=None, **kwargs)
+        self.set_cookie(name, self.create_signed_value(name, value, version=version),
+                        expires_days=expires_days, **kwargs)
         print('-'*30+' set_secure_cookie')
 
     def check_xsrf_cookie(self):
