@@ -60,6 +60,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 version = None
                 token = os.urandom(16)
                 timestamp = time.time()
+                print('New: ', version, token, timestamp)
             self._raw_xsrf_token = (version, token, timestamp)
         print('*'*30+' _get_raw_xsrf_token')
         return self._raw_xsrf_token
