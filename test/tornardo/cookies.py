@@ -29,6 +29,34 @@ class BaseHandler(tornado.web.RequestHandler):
         print('get_current_user: '+str(temp))
         return temp
 
+    def set_secure_cookie(self, name, value, expires_days=30, version=None, **kwargs):
+        """Signs and timestamps a cookie so it cannot be forged.
+
+        You must specify the ``cookie_secret`` setting in your Application
+        to use this method. It should be a long, random sequence of bytes
+        to be used as the HMAC secret for the signature.
+
+        To read a cookie set with this method, use `get_secure_cookie()`.
+
+        Note that the ``expires_days`` parameter sets the lifetime of the
+        cookie in the browser, but is independent of the ``max_age_days``
+        parameter to `get_secure_cookie`.
+
+        Secure cookies may contain arbitrary byte values, not just unicode
+        strings (unlike regular cookies)
+
+        Similar to `set_cookie`, the effect of this method will not be
+        seen until the following request.
+
+        .. versionchanged:: 3.2.1
+
+           Added the ``version`` argument.  Introduced cookie version 2
+           and made it the default.
+        """
+        self.set_cookie(name, self.create_signed_value(name, value,
+                                                       version=version),
+                        expires_days=None, **kwargs)
+
     def check_xsrf_cookie(self):
         token = (self.get_argument("_xsrf", None) or
                  self.request.headers.get("X-Xsrftoken") or
