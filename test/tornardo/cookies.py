@@ -25,6 +25,12 @@ check_dict = {
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        print('|||||prepare: ')
+
+    def on_finish(self):
+        print('|||||finish: ', self.request.cookies)
+
     def get_current_user(self):
         temp = self.get_secure_cookie("username")
         print('get_current_user: '+str(temp))
@@ -44,7 +50,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def set_secure_cookie(self, name, value, expires_days=30, version=None, **kwargs):
         print('-'*30+' set_secure_cookie')
-        print('- name=', name, ' value=', value)
+        print('- ', name, ' = ', value)
         self.set_cookie(name, self.create_signed_value(name, value, version=version),
                         expires_days=expires_days, **kwargs)
         print('-'*30+' set_secure_cookie')
