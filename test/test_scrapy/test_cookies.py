@@ -9,11 +9,14 @@ from scrapy import cmdline
 
 class TestCookiesSpider(scrapy.Spider):
     name = 'test_cookies'
-    allowed_domains = ['localhost']
+    # host = 'localhost'
+    host = '119.29.152.194'
+    port = 8000
+    allowed_domains = [host]
     header = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
-        "HOST": "localhost",
-        "Referer": "http://localhost/login",
+        "HOST": host,
+        "Referer": "http://"+host+str(port)+"/login",
     }
 
     def parse(self, response):
@@ -23,13 +26,13 @@ class TestCookiesSpider(scrapy.Spider):
 
     def start_requests(self):
         print('start_requests: ')
-        return [scrapy.Request('http://localhost:8000/login', headers=self.header, callback=self.do_login)]
+        return [scrapy.Request('http://'+self.host+':8000/login', headers=self.header, callback=self.do_login)]
 
     def do_login(self, response):
         print('do_login: '+response.url)
         _xsrf = response.xpath(".//form/input[1]/@value").extract()[0]
         print(_xsrf)
-        login_url = "http://localhost:8000/login"
+        login_url = 'http://'+self.host+':8000/login'
         login_data = {"username": "huyuan", "password": "hy195730", '_xsrf': _xsrf}
         return [scrapy.FormRequest(url=login_url, formdata=login_data, headers=self.header, callback=self.is_login)]
 
@@ -37,7 +40,7 @@ class TestCookiesSpider(scrapy.Spider):
         if "welcome" in response.url:
             print('is_login: '+response.url)
             for i in range(10):
-                url = 'http://localhost:8000/test_cookies/test_cookies_'+str(i)
+                url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
                 yield scrapy.Request(url, dont_filter=True, headers=self.header)
         else:
             print("登录失败")

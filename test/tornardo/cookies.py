@@ -48,6 +48,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def _get_raw_xsrf_token(self):
         print('*'*30+' _get_raw_xsrf_token')
         print('RequestHandler ID: '+str(id(self)))
+        print(self.request.cookies)
         if not hasattr(self, '_raw_xsrf_token'):
             cookie = self.get_cookie("_xsrf")
             print(cookie)

@@ -69,7 +69,7 @@ async def fetch11():
             print('begin_login: ' + str(res_remote.url))
             text = await res_remote.text()
             html = etree.HTML(text)
-            _xsrf = html.xpath(".//form/input[1]/@value")
+            _xsrf = html.xpath(".//form/input[1]/@value")[0]
             print(_xsrf)
         login_url = "http://119.29.152.194:8000/login"
         login_data = {"username": "quixote", "password": "123456789", '_xsrf': _xsrf}
