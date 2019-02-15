@@ -35,10 +35,10 @@ class BaseHandler(tornado.web.RequestHandler):
         print('token: '+str(token))
         if not token:
             raise HTTPError(403, "'_xsrf' argument missing from POST")
-        _, token, _ = self._decode_xsrf_token(token)
-        print('token: '+str(token))
-        _, expected_token, _ = self._get_raw_xsrf_token()
-        print('expected_token: '+str(expected_token))
+        _v, token, _t = self._decode_xsrf_token(token)
+        print(_v, 'token: '+str(token), _t)
+        _v, expected_token, _t = self._get_raw_xsrf_token()
+        print(_v, 'expected_token: '+str(expected_token), _t)
         if not token:
             raise HTTPError(403, "'_xsrf' argument has invalid format")
         if not _time_independent_equals(utf8(token), utf8(expected_token)):
