@@ -8,7 +8,11 @@ import tornado.web
 import tornado.options
 import os.path
 
+from tornado.web import HTTPError, _time_independent_equals, utf8
+
 from tornado.options import define, options
+
+# 119.29.152.194
 
 define("port", default=8000, help="run on the given port", type=int)
 
@@ -23,6 +27,22 @@ class BaseHandler(tornado.web.RequestHandler):
         temp = self.get_secure_cookie("username")
         print('get_current_user: '+str(temp))
         return temp
+
+    def check_xsrf_cookie(self):
+        token = (self.get_argument("_xsrf", None) or
+                 self.request.headers.get("X-Xsrftoken") or
+                 self.request.headers.get("X-Csrftoken"))
+        print('token: '+str(token))
+        if not token:
+            raise HTTPError(403, "'_xsrf' argument missing from POST")
+        _, token, _ = self._decode_xsrf_token(token)
+        print('token: '+str(token))
+        _, expected_token, _ = self._get_raw_xsrf_token()
+        print('expected_token: '+str(expected_token))
+        if not token:
+            raise HTTPError(403, "'_xsrf' argument has invalid format")
+        if not _time_independent_equals(utf8(token), utf8(expected_token)):
+            raise HTTPError(403, "XSRF cookie does not match POST argument")
 
 
 class LoginHandler(BaseHandler):
