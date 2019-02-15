@@ -158,8 +158,8 @@ async def fetch2():
 
 
 loop = asyncio.get_event_loop()
-tasks = [fetch(), ]
-# tasks = [fetch11(), ]
+# tasks = [fetch(), ]
+tasks = [fetch11(), ]
 # tasks = [fetch2(), ]
 # tasks = [fetch_one(), ]
 loop.run_until_complete(asyncio.wait(tasks))

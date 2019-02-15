@@ -7,6 +7,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.options
 import os.path
+import time
 
 from tornado.web import HTTPError, _time_independent_equals, utf8
 
@@ -43,6 +44,25 @@ class BaseHandler(tornado.web.RequestHandler):
             raise HTTPError(403, "'_xsrf' argument has invalid format")
         if not _time_independent_equals(utf8(token), utf8(expected_token)):
             raise HTTPError(403, "XSRF cookie does not match POST argument")
+
+    def _get_raw_xsrf_token(self):
+        print('*'*30+' _get_raw_xsrf_token')
+        if not hasattr(self, '_raw_xsrf_token'):
+            cookie = self.get_cookie("_xsrf")
+            print(cookie)
+            if cookie:
+                version, token, timestamp = self._decode_xsrf_token(cookie)
+                print('Y: ', version, token, timestamp)
+            else:
+                version, token, timestamp = None, None, None
+                print('N: ', version, token, timestamp)
+            if token is None:
+                version = None
+                token = os.urandom(16)
+                timestamp = time.time()
+            self._raw_xsrf_token = (version, token, timestamp)
+        print('*'*30+' _get_raw_xsrf_token')
+        return self._raw_xsrf_token
 
 
 class LoginHandler(BaseHandler):
