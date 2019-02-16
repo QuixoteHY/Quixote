@@ -29,6 +29,7 @@ class FormRequest(Request):
             if self.method == 'POST':
                 self.headers.setdefault(b'Content-Type', b'application/x-www-form-urlencoded')
                 self._set_body(querystr)
+                self.temp_body = formdata
             else:
                 self._set_url(self.url + ('&' if '?' in self.url else '?') + querystr)
 

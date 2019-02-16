@@ -39,6 +39,8 @@ class Request(object):
         self._meta = dict(meta) if meta else None
         self.flags = [] if flags is None else list(flags)
 
+        self.temp_body = None
+
     @property
     def meta(self):
         if self._meta is None:

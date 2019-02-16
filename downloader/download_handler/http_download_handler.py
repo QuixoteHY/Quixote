@@ -29,9 +29,11 @@ class HTTPDownloadHandler(object):
         print('Downloaded {}'.format(future.result().request.url))
 
     async def _download(self, request, spider):
-        response = await self.session.request(request.method, request.url,
+        print(request.method.lower(), request.temp_body)
+        response = await self.session.request(request.method.lower(), request.url,
                                               **{'headers': request.headers.get_aiohttp_headers(),
-                                                 'data': request.body})
+                                                 'data': request.temp_body})
         content = await response.read()
         await asyncio.sleep(1.8)
-        return HtmlResponse(request.url, body=content, request=request)
+        print('********************', type(response.url), str(response.url))
+        return HtmlResponse(str(response.url), body=content, request=request)
