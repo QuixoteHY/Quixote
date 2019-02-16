@@ -30,6 +30,7 @@ class HTTPDownloadHandler(object):
 
     async def _download(self, request, spider):
         print(request.method.lower(), request.temp_body)
+        print(request.headers.get_aiohttp_headers())
         response = await self.session.request(request.method.lower(), request.url,
                                               **{'headers': request.headers.get_aiohttp_headers(),
                                                  'data': request.temp_body})

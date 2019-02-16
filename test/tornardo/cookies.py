@@ -103,6 +103,7 @@ class LoginHandler(BaseHandler):
         password = self.get_argument("password")
         if username in check_dict and password == check_dict[username]:
             self.set_secure_cookie("username", username)
+            self.set_secure_cookie("password", password)
             self.redirect("/welcome")
         else:
             self.redirect("/login")
