@@ -10,7 +10,9 @@ from scrapy import cmdline
 class TestCookiesSpider(scrapy.Spider):
     name = 'test_cookies'
     # host = 'localhost'
-    host = '119.29.152.194'
+    # host = '127.0.0.1'
+    host = '192.168.31.142'
+    # host = '119.29.152.194'
     port = 8000
     allowed_domains = [host]
     header = {
