@@ -27,7 +27,7 @@ DOWNLOAD_HANDLERS_BASE = {
 
 DOWNLOADER_MIDDLEWARES = {}
 DOWNLOADER_MIDDLEWARES_BASE = {
-    'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': None,
+    'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': 700,
 }
 # DOWNLOADER_MIDDLEWARES_BASE = {
 #     # Engine side

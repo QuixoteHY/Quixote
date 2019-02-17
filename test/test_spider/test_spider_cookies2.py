@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from os.path import dirname, abspath
+
 import quixote
 from quixote.starter import Starter
 
@@ -7,8 +10,9 @@ class TestCookiesSpider(quixote.Spider):
     name = 'test_cookies'
     # host = 'localhost'
     # host = '127.0.0.1'
-    host = 'www.huyuan.com'
+    # host = 'www.huyuan.com'
     # host = '192.168.31.142'
+    host = 'www.quixotehy.xyz'
     # host = '119.29.152.194'
     port = 8000
     allowed_domains = [host]
@@ -18,10 +22,11 @@ class TestCookiesSpider(quixote.Spider):
         "Referer": "http://"+host+':'+str(port)+"/login",
         "Connection": "keep-alive",
     }
+    logs_path = dirname(dirname(dirname(abspath(__file__))))+'/logs/'
 
     def parse(self, response):
         print(response)
-        with open('/Users/muyichun/PycharmProjects/socialpeta/quixote/logs/html/mm.html', 'w') as f:
+        with open(self.logs_path+'html/mm.html', 'w') as f:
             f.write(response.text)
         yield b'Yes'
 
