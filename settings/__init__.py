@@ -40,6 +40,8 @@ class Settings(object):
         self.settings['COOKIES_ENABLED'] = settings.COOKIES_ENABLED
         self.settings['COOKIES_DEBUG'] = settings.COOKIES_DEBUG
 
+        self.settings['DEFAULT_REQUEST_HEADERS'] = settings.DEFAULT_REQUEST_HEADERS
+
     def get_settings(self):
         return copy.deepcopy(self.settings)
 

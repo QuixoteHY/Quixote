@@ -27,6 +27,7 @@ DOWNLOAD_HANDLERS_BASE = {
 
 DOWNLOADER_MIDDLEWARES = {}
 DOWNLOADER_MIDDLEWARES_BASE = {
+    'quixote.downloader.downloadermiddlewares.default_headers.DefaultHeadersMiddleware': 400,
     'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': 700,
 }
 # DOWNLOADER_MIDDLEWARES_BASE = {
@@ -50,3 +51,8 @@ DOWNLOADER_MIDDLEWARES_BASE = {
 
 COOKIES_ENABLED = True
 COOKIES_DEBUG = False
+
+DEFAULT_REQUEST_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en',
+}
