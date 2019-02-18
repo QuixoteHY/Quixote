@@ -58,7 +58,8 @@ class DownloaderMiddlewareManager(MiddlewareManager):
                     return response
             return await download_func(_request, spider)
 
-        def process_response(response):
+        def process_response(future):
+            response = future.result()
             assert response is not None, 'Received None in process_response'
             if isinstance(response, Request):
                 return Request

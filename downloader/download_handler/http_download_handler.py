@@ -35,6 +35,10 @@ class HTTPDownloadHandler(object):
                                               **{'headers': request.headers.get_aiohttp_headers(),
                                                  'data': request.temp_body})
         content = await response.read()
+        headers = response.headers
+        scrapy_headers = {}
+        for k, v in headers.items():
+            scrapy_headers[k] = v
+        print(scrapy_headers)
         await asyncio.sleep(1.8)
-        print('********************', type(response.url), str(response.url))
-        return HtmlResponse(str(response.url), body=content, request=request)
+        return HtmlResponse(str(response.url), body=content, request=request, headers=scrapy_headers)
