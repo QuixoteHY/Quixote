@@ -36,34 +36,19 @@ class TestCookiesSpider(quixote.Spider):
         i = 0
         while True:
             i += 1
-            # if i > 10:
-            #     break
             url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
-            print(url)
             yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
 
     def do_login(self, response):
         print(response)
         self._xsrf = response.xpath(".//form/input[1]/@value").extract()[0]
         print(self._xsrf)
-        # login_url = 'http://'+self.host+':8000/login'
-        # login_data = {"username": "huyuan", "password": "hy195730", '_xsrf': _xsrf}
-        # return [quixote.FormRequest(url=login_url, method='POST', formdata=login_data, headers=self.header,
-        #                             callback=self.is_login)]
         yield b'do_login......'
 
     def is_login(self, response):
         print(response)
         if "welcome" in response.url:
             print("登录成功")
-            # for i in range(100):
-            # i = 0
-            # while True:
-            #     i += 1
-            #     if i > 100000:
-            #         break
-            #     url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
-            #     yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
             yield b'is_login......'
         else:
             print("登录失败")
@@ -71,9 +56,6 @@ class TestCookiesSpider(quixote.Spider):
             sys.exit(1)
 
     def parse(self, response):
-        # print(response)
-        # with open(self.logs_path+'html/mm.html', 'w') as f:
-        #     f.write(response.text)
         time.sleep(0.05)
         yield bytes(str(response), encoding='utf8')
 
