@@ -10,9 +10,9 @@ class TestCookiesSpider(quixote.Spider):
     name = 'test_cookies'
     # host = 'localhost'
     # host = '127.0.0.1'
-    # host = 'www.huyuan.com'
+    host = 'www.huyuan.com'
     # host = '192.168.31.142'
-    host = 'www.quixotehy.xyz'
+    # host = 'www.quixotehy.xyz'
     # host = '119.29.152.194'
     port = 8000
     allowed_domains = [host]
@@ -25,10 +25,10 @@ class TestCookiesSpider(quixote.Spider):
     logs_path = dirname(dirname(dirname(abspath(__file__))))+'/logs/'
 
     def parse(self, response):
-        print(response)
-        with open(self.logs_path+'html/mm.html', 'w') as f:
-            f.write(response.text)
-        yield b'Yes'
+        # print(response)
+        # with open(self.logs_path+'html/mm.html', 'w') as f:
+        #     f.write(response.text)
+        yield bytes(str(response))
 
     def start_requests(self):
         print('start_requests: ')
@@ -47,7 +47,12 @@ class TestCookiesSpider(quixote.Spider):
         print(response)
         if "welcome" in response.url:
             print("登录成功")
-            for i in range(10):
+            # for i in range(100):
+            i = 0
+            while True:
+                i += 1
+                if i > 100000:
+                    break
                 url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
                 yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
         else:

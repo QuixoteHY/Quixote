@@ -14,8 +14,9 @@ class TestSpider(Spider):
     name = 'test'
     count = 0
     # server_ip = 'localhost'
-    server_ip = '119.29.152.194'
-    server_host = '8888'
+    # server_ip = '119.29.152.194'
+    server_ip = 'www.huyuan.com'
+    server_host = '8000'
 
     def start_requests(self):
         # 'http://119.29.152.194:8888/reverse/5343534'

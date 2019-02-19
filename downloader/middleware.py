@@ -85,11 +85,3 @@ class DownloaderMiddlewareManager(MiddlewareManager):
         task = asyncio.ensure_future(process_request(request))
         task.add_done_callback(process_response)
         return task
-        # response = await self.process_request(request, spider)
-        # if response:
-        #     if isinstance(response, Response):
-        #         await self.process_response(request, response, spider)
-        #     if isinstance(response, Request):
-        #         return response
-        # else:
-        #     return download_func(request, response)

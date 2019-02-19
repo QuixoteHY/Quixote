@@ -22,7 +22,7 @@ class TestCookiesSpider(scrapy.Spider):
     }
 
     def parse(self, response):
-        print('parse: '+response.url)
+        print('parsed: '+response.url)
         with open('/Users/muyichun/PycharmProjects/socialpeta/quixote/logs/html/mm.html', 'w') as f:
             f.write(response.text)
 
@@ -42,8 +42,14 @@ class TestCookiesSpider(scrapy.Spider):
         print(response)
         if "welcome" in response.url:
             print('is_login: '+response.url)
+            # i = 0
+            # while True:
+            #     i += 1
+            #     if i > 100000:
+            #         break
             for i in range(10):
                 url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
+                print('Downloading, ', i)
                 yield scrapy.Request(url, dont_filter=True, headers=self.header)
         else:
             print("登录失败")
