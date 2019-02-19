@@ -36,8 +36,8 @@ class TestCookiesSpider(quixote.Spider):
         i = 0
         while True:
             i += 1
-            if i > 10:
-                break
+            # if i > 10:
+            #     break
             url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
             print(url)
             yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
@@ -75,7 +75,7 @@ class TestCookiesSpider(quixote.Spider):
         # with open(self.logs_path+'html/mm.html', 'w') as f:
         #     f.write(response.text)
         time.sleep(0.05)
-        yield bytes(str(response))
+        yield bytes(str(response), encoding='utf8')
 
 
 def main():
