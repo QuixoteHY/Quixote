@@ -79,7 +79,7 @@ class TestCookiesSpider(quixote.Spider):
 
 
 def main():
-    s = Starter('quixote.test.test_spider.test_spider_cookies2.TestCookiesSpider', is_check_emmory=False)
+    s = Starter('quixote.test.test_spider.test_spider_cookies3.TestCookiesSpider', is_check_emmory=False)
     s.start()
 
 

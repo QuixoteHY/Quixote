@@ -8,7 +8,7 @@
 import asyncio
 import aiohttp
 
-from quixote.protocol.response.html import HtmlResponse
+from quixote.protocol import HtmlResponse
 
 
 class HTTPDownloadHandler(object):

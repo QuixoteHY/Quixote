@@ -11,7 +11,7 @@ import asyncio
 
 from quixote import loop
 from quixote.protocol.request import Request
-from quixote.protocol.response import Response
+from quixote.protocol import Response, HtmlResponse
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
 
@@ -80,6 +80,8 @@ class Engine(object):
     async def _download(self, request, spider):
         try:
             response = await self.downloader.fetch(request, spider)
+            # b = isinstance(response, Response)
+            # a = isinstance(response, HtmlResponse)
             if not isinstance(response, Response):
                 # need to do something
                 # need to test the case when response is None
