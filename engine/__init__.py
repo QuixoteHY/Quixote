@@ -107,6 +107,7 @@ class Engine(object):
 
     def start(self, spider):
         self.spider = spider
+        self.before_start_requests(self.spider)
         next_call = CallLaterOnce(self._next_request, spider)
         scheduler = self.scheduler_class.from_starter(self.starter)
         start_requests = self.spider.start_requests()
@@ -114,3 +115,17 @@ class Engine(object):
         self.heart.start(5)
         asyncio.set_event_loop(loop)
         loop.run_forever()
+
+    def before_start_requests(self, spider):
+        async def task(_request, _spider):
+            try:
+                response = await self.downloader.fetch(_request, _spider)
+                if not isinstance(response, Response):
+                    logger.error('The Download data was not a Response object')
+                    return
+                for item in _request.callback(response):
+                    print(item)
+            except Exception as e:
+                print(logger.exception(e))
+        for request in spider.before_start_requests():
+            loop.run_until_complete(task(request, spider))

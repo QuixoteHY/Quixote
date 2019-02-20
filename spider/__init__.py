@@ -33,10 +33,16 @@ class Spider(object):
         self.crawler = crawler
         self.settings = crawler.settings
 
+    def before_start_requests(self):
+        """目前可用于（后续有其他需求将继续添加并改进相关代码）：
+        1、爬虫开始前登录目标网站，目的是将登录信息保存下来
+        :return:
+        """
+        pass
+
     def start_requests(self):
         for url in self.start_urls:
             yield Request(url)
 
     def parse(self, response):
         raise NotImplementedError('{}.parse callback is not defined'.format(self.__class__.__name__))
-
