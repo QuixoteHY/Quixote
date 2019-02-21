@@ -56,3 +56,6 @@ DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en',
 }
+
+ITEM_PROCESSOR = 'quixote.scraper.pipelines.ItemPipelineManager'
+CONCURRENT_ITEMS = 100

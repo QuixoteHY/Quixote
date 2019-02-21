@@ -42,6 +42,9 @@ class Settings(object):
 
         self.settings['DEFAULT_REQUEST_HEADERS'] = settings.DEFAULT_REQUEST_HEADERS
 
+        self.settings['ITEM_PROCESSOR'] = settings.ITEM_PROCESSOR
+        self.settings['CONCURRENT_ITEMS'] = settings.CONCURRENT_ITEMS
+
     def get_settings(self):
         return copy.deepcopy(self.settings)
 

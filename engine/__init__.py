@@ -12,6 +12,7 @@ import asyncio
 from quixote import loop
 from quixote.protocol.request import Request
 from quixote.protocol import Response, HtmlResponse
+from quixote.scraper import Scraper
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
 
@@ -46,6 +47,7 @@ class Engine(object):
         self.running = False
         self.crawling = []
         self.max = 5
+        self.scraper = Scraper(starter)
 
     def _next_request(self, spider):
         if not self.heart:
@@ -87,18 +89,20 @@ class Engine(object):
                 # need to test the case when response is None
                 return
             self.heart.next_call.schedule()
-            for item_or_request in request.callback(response):
-                self._handle_downloader_output(item_or_request, request, spider)
+            self._handle_downloader_output(response, request, spider)
         except Exception as e:
             print(logger.exception(e))
         finally:
             self.heart.next_call.schedule()
 
-    def _handle_downloader_output(self, item_or_request, request, spider):
-        if isinstance(item_or_request, Request):
-            self._crawl(item_or_request, spider)
+    def _handle_downloader_output(self, response, request, spider):
+        assert isinstance(response, (Request, Response)), response
+        if isinstance(response, Request):
+            self._crawl(response, spider)
             return
-        print('Parsed {}'.format(item_or_request.decode()))
+        # self.scraper.enqueue_scrape(response, request, spider)
+        for item_or_request in request.callback(response):
+            print('Parsed {}'.format(item_or_request.decode()))
 
     def _crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
@@ -112,6 +116,8 @@ class Engine(object):
         scheduler = self.scheduler_class.from_starter(self.starter)
         start_requests = self.spider.start_requests()
         self.heart = Heart(start_requests, next_call, scheduler)
+        self.scraper.open_spider(spider)
+        self.heart.next_call.schedule()
         self.heart.start(5)
         asyncio.set_event_loop(loop)
         loop.run_forever()
