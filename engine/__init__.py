@@ -10,8 +10,7 @@ import logging
 import asyncio
 
 from quixote import loop
-from quixote.protocol.request import Request
-from quixote.protocol import Response, HtmlResponse
+from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
@@ -82,12 +81,11 @@ class Engine(object):
     async def _download(self, request, spider):
         try:
             response = await self.downloader.fetch(request, spider)
+            assert isinstance(response, (Response, Request))
             # b = isinstance(response, Response)
             # a = isinstance(response, HtmlResponse)
-            if not isinstance(response, Response):
-                # need to do something
-                # need to test the case when response is None
-                return
+            if isinstance(response, Response):
+                response.request = request
             self.heart.next_call.schedule()
             self._handle_downloader_output(response, request, spider)
         except Exception as e:
@@ -100,9 +98,9 @@ class Engine(object):
         if isinstance(response, Request):
             self._crawl(response, spider)
             return
-        # self.scraper.enqueue_scrape(response, request, spider)
-        for item_or_request in request.callback(response):
-            print('Parsed {}'.format(item_or_request.decode()))
+        self.scraper.enqueue_scrape(response, request, spider)
+        # for item_or_request in request.callback(response):
+        #     print('Parsed {}'.format(item_or_request.decode()))
 
     def _crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)

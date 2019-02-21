@@ -66,8 +66,7 @@ class Scraper(object):
         self.itemmw.open_spider(spider)
 
     def enqueue_scrape(self, response, request, spider):
-        slot = self.slot
-        slot.add_response_request(response, request)
+        # self.slot.add_response_request(response, request)
         # def finish_scraping(_):
         #     slot.finish_response(response, request)
         #     self._check_if_closing(spider, slot)
@@ -80,3 +79,5 @@ class Scraper(object):
         #                            exc_info=failure_to_exc_info(f),
         #                            extra={'spider': spider}))
         # self._scrape_next(spider, slot)
+        for item_or_request in request.callback(response):
+            print('Parsed {}'.format(item_or_request.decode()))
