@@ -65,19 +65,56 @@ class Scraper(object):
         self.slot = Slot()
         self.itemmw.open_spider(spider)
 
+    def enqueue_scrape2(self, response, request, spider):
+        slot = self.slot
+        try:
+            slot.add_response_request(response, request)
+            self._scrape_next(spider, slot)
+            slot.finish_response(response, request)
+            self._check_if_closing(spider, slot)
+            self._scrape_next(spider, slot)
+            # for item_or_request in request.callback(response):
+            #     print('Parsed {}'.format(item_or_request.decode()))
+        except Exception as e:
+            logger.error('Scraper bug processing %(request)s %(err)s', {'request': request, 'err': e},
+                         extra={'spider': spider})  # ,exc_info=failure_to_exc_info(f),
+
+    def _scrape_next(self, spider, slot):
+        while slot.queue:
+            response, request = slot.next_response_request()
+            self._scrape(response, request, spider)
+
+    def _scrape(self, response, request, spider):
+        """Handle the downloaded response or failure through the spider call_back/errback"""
+        # assert isinstance(response, (Response, Failure))
+        assert isinstance(response, Response)
+        for result in self.call_parser(response, request, spider):
+            self.handle_parser_output(result, request, response, spider)
+        # self.handle_spider_error(result, request, response, spider)
+
+    # def _scrape2(self, request_result, request, spider):
+    #     """Handle the different cases of request's result been a Response or a Failure"""
+    #     for item_or_request in self.call_spider(request_result, request, spider):
+    #         yield item_or_request
+
+    @staticmethod
+    def call_parser(response, request, spider):
+        response.request = request
+        callback = request.callback or spider.parse
+        for item_or_request in callback(response):
+            yield 'Parsed {}'.format(item_or_request.decode())
+
+    def handle_parser_output(self, result, request, response, spider):
+        print(result)
+
+    def handle_spider_error(self, _failure, request, response, spider):
+        pass
+
+    def _check_if_closing(self, spider, slot):
+        # if slot.closing and slot.is_idle():
+        #     slot.closing.callback(spider)
+        pass
+
     def enqueue_scrape(self, response, request, spider):
-        # self.slot.add_response_request(response, request)
-        # def finish_scraping(_):
-        #     slot.finish_response(response, request)
-        #     self._check_if_closing(spider, slot)
-        #     self._scrape_next(spider, slot)
-        #     return _
-        # dfd.addBoth(finish_scraping)
-        # dfd.addErrback(
-        #     lambda f: logger.error('Scraper bug processing %(request)s',
-        #                            {'request': request},
-        #                            exc_info=failure_to_exc_info(f),
-        #                            extra={'spider': spider}))
-        # self._scrape_next(spider, slot)
         for item_or_request in request.callback(response):
             print('Parsed {}'.format(item_or_request.decode()))

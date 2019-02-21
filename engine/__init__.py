@@ -98,7 +98,8 @@ class Engine(object):
         if isinstance(response, Request):
             self._crawl(response, spider)
             return
-        self.scraper.enqueue_scrape(response, request, spider)
+        # self.scraper.enqueue_scrape(response, request, spider)
+        self.scraper.enqueue_scrape2(response, request, spider)
         # for item_or_request in request.callback(response):
         #     print('Parsed {}'.format(item_or_request.decode()))
 
