@@ -110,7 +110,7 @@ class Scraper(object):
             self.starter.engine.crawl(request=result, spider=spider)
         elif isinstance(result, (BaseItem, dict)):
             self.slot.itemproc_size += 1
-            # self.itemmw.process_item(result, spider)
+            self.itemmw.process_item(result, spider)
             print('Parsed\tstatus={}'.format(str(result['status'])+'\turl='+result['url']))
         elif result is None:
             pass

@@ -9,7 +9,7 @@ from collections import defaultdict
 import logging
 import pprint
 
-from quixote.exception.exceptions import NotConfigured
+from quixote.exception.exceptions import NotConfigured, DropItem
 from quixote.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -49,8 +49,8 @@ class MiddlewareManager(object):
                     clsname = clspath.split('.')[-1]
                     logger.warning("Disabled %(clsname)s: %(eargs)s", {'clsname': clsname, 'eargs': e.args[0]},
                                    extra={'starter': starter})
-        logger.info("Enabled %(componentname)ss:\n%(enabledlist)s", {'componentname': cls.component_name,
-                                                                     'enabledlist': pprint.pformat(enabled)},
+        logger.info("Enabled %(componentname)ss:\n%(enabledlist)s",
+                    {'componentname': cls.component_name, 'enabledlist': pprint.pformat(enabled)},
                     extra={'starter': starter})
         return cls(*middlewares)
 
@@ -63,3 +63,17 @@ class MiddlewareManager(object):
             self.methods['open_spider'].append(mw.open_spider)
         if hasattr(mw, 'close_spider'):
             self.methods['close_spider'].insert(0, mw.close_spider)
+
+    def open_spider(self, spider):
+        pass
+
+    def close_spider(self, spider):
+        pass
+
+    def _process_chain(self, method_name, item, spider):
+        for method in self.methods[method_name]:
+            try:
+                item = method(item, spider)
+            except DropItem as e:
+                logger.info('DropItem: %s' % e)
+                break

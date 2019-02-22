@@ -25,17 +25,13 @@ class Settings(object):
 
         self.settings['RANDOMIZE_DOWNLOAD_DELAY'] = settings.RANDOMIZE_DOWNLOAD_DELAY
 
-        download_handlers = settings.DOWNLOAD_HANDLERS_BASE
+        self.settings['DOWNLOAD_HANDLERS'] = settings.DOWNLOAD_HANDLERS_BASE
         if settings.DOWNLOAD_HANDLERS:
-            self.settings['DOWNLOAD_HANDLERS'] = download_handlers.update(settings.DOWNLOAD_HANDLERS)
-        else:
-            self.settings['DOWNLOAD_HANDLERS'] = download_handlers
+            self.settings['DOWNLOAD_HANDLERS'].update(settings.DOWNLOAD_HANDLERS)
 
-        downloader_middlewares = settings.DOWNLOADER_MIDDLEWARES_BASE
+        self.settings['DOWNLOADER_MIDDLEWARES'] = settings.DOWNLOADER_MIDDLEWARES_BASE
         if settings.DOWNLOADER_MIDDLEWARES:
-            self.settings['DOWNLOADER_MIDDLEWARES'] = downloader_middlewares.update(settings.DOWNLOADER_MIDDLEWARES)
-        else:
-            self.settings['DOWNLOADER_MIDDLEWARES'] = downloader_middlewares
+            self.settings['DOWNLOADER_MIDDLEWARES'].update(settings.DOWNLOADER_MIDDLEWARES)
 
         self.settings['COOKIES_ENABLED'] = settings.COOKIES_ENABLED
         self.settings['COOKIES_DEBUG'] = settings.COOKIES_DEBUG
@@ -44,6 +40,9 @@ class Settings(object):
 
         self.settings['ITEM_PROCESSOR'] = settings.ITEM_PROCESSOR
         self.settings['CONCURRENT_ITEMS'] = settings.CONCURRENT_ITEMS
+        self.settings['ITEM_PIPELINES'] = settings.ITEM_PIPELINES_BASE
+        if settings.ITEM_PIPELINES:
+            self.settings['ITEM_PIPELINES'].update(settings.ITEM_PIPELINES)
 
     def get_settings(self):
         return copy.deepcopy(self.settings)

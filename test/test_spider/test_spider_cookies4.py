@@ -66,6 +66,7 @@ class TestCookiesSpider(quixote.Spider):
         item = TestItem()
         item['status'] = response.status
         item['url'] = response.url
+        item['pipeline'] = list()
         yield item
 
 
