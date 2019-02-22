@@ -9,6 +9,7 @@ import logging
 from collections import deque
 
 from quixote.protocol import Response
+from quixote.item import Item
 from quixote.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -102,7 +103,10 @@ class Scraper(object):
         response.request = request
         callback = request.callback or spider.parse
         for item_or_request in callback(response):
-            yield 'Parsed {}'.format(item_or_request.decode())
+            if isinstance(item_or_request, Item):
+                yield 'Parsed\tstatus={}'.format(str(item_or_request['status'])+'\turl='+item_or_request['url'])
+            else:
+                yield 'Parsed Error'
 
     def handle_parser_output(self, result, request, response, spider):
         print(result)

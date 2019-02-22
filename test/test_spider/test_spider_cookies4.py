@@ -4,6 +4,7 @@ from os.path import dirname, abspath
 import time
 
 import quixote
+from quixote.test.test_spider.test_item import TestItem
 from quixote.starter import Starter
 
 
@@ -62,7 +63,10 @@ class TestCookiesSpider(quixote.Spider):
         # with open(self.logs_path+'html01/mm.html', 'a') as f:
         #     f.write(response.text)
         time.sleep(0.05)
-        yield bytes(str(response), encoding='utf8')
+        item = TestItem()
+        item['status'] = response.status
+        item['url'] = response.url
+        yield item
 
 
 def main():
