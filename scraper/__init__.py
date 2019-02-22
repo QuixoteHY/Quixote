@@ -8,8 +8,8 @@
 import logging
 from collections import deque
 
-from quixote.protocol import Response
-from quixote.item import Item
+from quixote.protocol import Request, Response
+from quixote.item import BaseItem
 from quixote.utils.misc import load_object
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class Slot(object):
         self.queue = deque()
         self.active = set()
         self.active_size = 0
-        self.itemmw_size = 0
+        self.itemproc_size = 0
         self.closing = None
 
     def add_response_request(self, response, request):
@@ -93,23 +93,30 @@ class Scraper(object):
             self.handle_parser_output(result, request, response, spider)
         # self.handle_spider_error(result, request, response, spider)
 
-    # def _scrape2(self, request_result, request, spider):
-    #     """Handle the different cases of request's result been a Response or a Failure"""
-    #     for item_or_request in self.call_spider(request_result, request, spider):
-    #         yield item_or_request
-
     @staticmethod
     def call_parser(response, request, spider):
         response.request = request
         callback = request.callback or spider.parse
         for item_or_request in callback(response):
-            if isinstance(item_or_request, Item):
-                yield 'Parsed\tstatus={}'.format(str(item_or_request['status'])+'\turl='+item_or_request['url'])
-            else:
-                yield 'Parsed Error'
+            yield item_or_request
+            # if isinstance(item_or_request, BaseItem):
+            #     yield 'Parsed\tstatus={}'.format(str(item_or_request['status'])+'\turl='+item_or_request['url'])
+            # else:
+            #     yield 'Parsed Error'
 
     def handle_parser_output(self, result, request, response, spider):
-        print(result)
+        # print(result)
+        if isinstance(result, Request):
+            self.starter.engine.crawl(request=result, spider=spider)
+        elif isinstance(result, (BaseItem, dict)):
+            self.slot.itemproc_size += 1
+            # self.itemmw.process_item(result, spider)
+            print('Parsed\tstatus={}'.format(str(result['status'])+'\turl='+result['url']))
+        elif result is None:
+            pass
+        else:
+            logger.error('Spider must return Request, BaseItem, dict or None, got %(typename)r in %(request)s',
+                         {'request': request, 'typename': type(result).__name__}, extra={'spider': spider})
 
     def handle_spider_error(self, _failure, request, response, spider):
         pass

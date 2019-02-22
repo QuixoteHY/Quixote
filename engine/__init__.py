@@ -39,6 +39,7 @@ class Engine(object):
         self.loop = None
         self.spider = None
         self.scheduler = None
+        self.scraper = Scraper(starter)
         self.heart = None
         self.scheduler_class = load_object(self.settings['SCHEDULER'])
         downloader_class = load_object(self.settings['DOWNLOADER'])
@@ -46,7 +47,6 @@ class Engine(object):
         self.running = False
         self.crawling = []
         self.max = 5
-        self.scraper = Scraper(starter)
 
     def _next_request(self, spider):
         if not self.heart:
@@ -65,7 +65,7 @@ class Engine(object):
                 logger.error('Error while obtaining start requests', exc_info=True,
                              extra={'spider': spider, 'exc_info': str(e)})
             else:
-                self._crawl(request, spider)
+                self.crawl(request, spider)
 
     def _needs_slowdown(self):
         return self.downloader.needs_slowdown()
@@ -96,7 +96,7 @@ class Engine(object):
     def _handle_downloader_output(self, response, request, spider):
         assert isinstance(response, (Request, Response)), response
         if isinstance(response, Request):
-            self._crawl(response, spider)
+            self.crawl(response, spider)
             return
         # self.scraper.enqueue_scrape(response, request, spider)
         # self.scraper.enqueue_scrape2(response, request, spider)
@@ -106,7 +106,7 @@ class Engine(object):
         # for item_or_request in request.callback(response):
         #     print('Parsed {}'.format(item_or_request.decode()))
 
-    def _crawl(self, request, spider):
+    def crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
         self.heart.scheduler.push_request(request)
         self.heart.next_call.schedule()
