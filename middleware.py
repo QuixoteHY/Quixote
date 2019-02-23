@@ -9,6 +9,7 @@ from collections import defaultdict
 import logging
 import pprint
 
+from quixote.item import BaseItem
 from quixote.exception.exceptions import NotConfigured, DropItem
 from quixote.utils.misc import load_object
 
@@ -71,9 +72,15 @@ class MiddlewareManager(object):
         pass
 
     def _process_chain(self, method_name, item, spider):
+        res = True
         for method in self.methods[method_name]:
             try:
                 item = method(item, spider)
+                if not isinstance(item, (BaseItem, dict)):
+                    raise DropItem('DropItem: %s do not return BaseItem or dict' % method_name)
             except DropItem as e:
                 logger.info('DropItem: %s' % e)
+                print('DropItem: ', e)
+                res = False
                 break
+        return res

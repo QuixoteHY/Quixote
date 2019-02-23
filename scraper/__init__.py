@@ -75,7 +75,7 @@ class Scraper(object):
             self._check_if_closing(spider, slot)
             self._scrape_next(spider, slot)
         except Exception as e:
-            logger.error('Scraper bug processing %(request)s %(err)s', {'request': request, 'err': e},
+            logger.error('Scraper bug processing %(request)s %(err)s', {'request': request, 'err': logger.exception(e)},
                          extra={'spider': spider})  # ,exc_info=failure_to_exc_info(f),
 
     def _scrape_next(self, spider, slot):
@@ -103,13 +103,22 @@ class Scraper(object):
             self.starter.engine.crawl(request=result, spider=spider)
         elif isinstance(result, (BaseItem, dict)):
             self.slot.itemproc_size += 1
-            self.itemmw.process_item(result, spider)
-            print('Parsed\tstatus={}'.format(str(result['status'])+'\turl='+result['url']))
+            output = self.itemmw.process_item(result, spider)
+            self._itemproc_finished(output, result, response, spider)
+            # print('Parsed\tstatus={}'.format(str(result['status'])+'\turl='+result['url']))
         elif result is None:
             pass
         else:
             logger.error('Spider must return Request, BaseItem, dict or None, got %(typename)r in %(request)s',
                          {'request': request, 'typename': type(result).__name__}, extra={'spider': spider})
+
+    def _itemproc_finished(self, output, item, response, spider):
+        self.slot.itemproc_size -= 1
+        if output:
+            print('Parsed\tstatus={}'.format(str(item['status']) + '\turl=' + item['url']
+                                             + '\tpipeline=' + str(item['pipeline'])))
+        else:
+            print('Parsed Error...')
 
     def handle_spider_error(self, _failure, request, response, spider):
         pass
