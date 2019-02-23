@@ -6,6 +6,7 @@
 # @Describe :
 
 from importlib import import_module
+import six
 
 
 def load_object(path):
@@ -21,3 +22,11 @@ def load_object(path):
         raise NameError("Module '%s' doesn't define any object named '%s'" % (module, name))
 
     return obj
+
+
+def fun_name(f):
+    return '%s.%s' % (six.get_method_self(f).__class__.__name__, six.get_method_function(f).__name__)
+
+
+def is_iterable(possible_iterator):
+    return hasattr(possible_iterator, '__iter__')

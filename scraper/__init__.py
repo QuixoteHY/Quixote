@@ -9,6 +9,7 @@ from collections import deque
 
 from quixote.protocol import Request, Response
 from quixote.item import BaseItem
+from quixote.spider.middleware import SpiderMiddlewareManager
 from quixote.logger import logger
 from quixote.utils.misc import load_object
 
@@ -53,7 +54,7 @@ class Slot(object):
 class Scraper(object):
     def __init__(self, starter):
         self.slot = None
-        # self.spidermw = SpiderMiddlewareManager.from_crawler(starter)
+        self.spidermw = SpiderMiddlewareManager.from_starter(starter)
         itemmw_cls = load_object(starter.settings['ITEM_PROCESSOR'])
         self.itemmw = itemmw_cls.from_starter(starter)
         self.concurrent_items = starter.settings['CONCURRENT_ITEMS']
@@ -85,7 +86,9 @@ class Scraper(object):
         """Handle the downloaded response or failure through the spider call_back/errback"""
         # assert isinstance(response, (Response, Failure))
         assert isinstance(response, Response)
-        for result in self.call_parser(response, request, spider):
+        # for result in self.call_parser(response, request, spider):
+        #     self.handle_parser_output(result, request, response, spider)
+        for result in self.spidermw.scrape_response(self.call_parser, response, request, spider):
             self.handle_parser_output(result, request, response, spider)
         # self.handle_spider_error(result, request, response, spider)
 

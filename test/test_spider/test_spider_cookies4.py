@@ -26,6 +26,8 @@ class TestCookiesSpider(quixote.Spider):
     }
     logs_path = dirname(dirname(dirname(abspath(__file__))))+'/logs/'
     _xsrf = ''
+    i = 0
+    j = 0
 
     def before_start_requests(self):
         print('before_start_requests 4: ')
@@ -37,10 +39,9 @@ class TestCookiesSpider(quixote.Spider):
 
     def start_requests(self):
         print('start_requests: ')
-        i = 0
         while True:
-            i += 1
-            url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
+            self.i += 1
+            url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(self.i)
             # yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
             yield quixote.Request(url, dont_filter=True, headers=self.header)
 
@@ -63,12 +64,16 @@ class TestCookiesSpider(quixote.Spider):
     def parse(self, response):
         # with open(self.logs_path+'html01/mm.html', 'a') as f:
         #     f.write(response.text)
+        self.j += 1
         time.sleep(0.05)
         item = TestItem()
         item['status'] = response.status
         item['url'] = response.url
         item['pipeline'] = list()
         yield item
+        if self.j in [100, 1500, 20000, 2500000]:
+            url = 'http://' + self.host + ':8000/test_cookies/PARSE_RECORD_' + str(self.j) + 'W'*3000
+            yield quixote.Request(url, dont_filter=True, headers=self.header)
 
 
 def main():

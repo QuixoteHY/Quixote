@@ -44,6 +44,11 @@ class Settings(object):
         if settings.ITEM_PIPELINES:
             self.settings['ITEM_PIPELINES'].update(settings.ITEM_PIPELINES)
 
+        self.settings['SPIDER_MIDDLEWARES'] = settings.SPIDER_MIDDLEWARES_BASE
+        if settings.SPIDER_MIDDLEWARES:
+            self.settings['SPIDER_MIDDLEWARES'].update(settings.SPIDER_MIDDLEWARES)
+        self.settings['URLLENGTH_LIMIT'] = settings.URLLENGTH_LIMIT
+
     def get_settings(self):
         return copy.deepcopy(self.settings)
 

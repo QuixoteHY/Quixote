@@ -63,3 +63,18 @@ ITEM_PIPELINES = {
     'quixote.test.test_spider.test_pipeline.TestPipeline': 100,
 }
 ITEM_PIPELINES_BASE = {}
+
+SPIDER_MIDDLEWARES = {}
+SPIDER_MIDDLEWARES_BASE = {
+    'quixote.spider.spidermiddlewares.urllength.UrlLengthMiddleware': 800,
+}
+# SPIDER_MIDDLEWARES_BASE = {
+#     # Engine side
+#     'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware': 50,
+#     'scrapy.spidermiddlewares.offsite.OffsiteMiddleware': 500,
+#     'scrapy.spidermiddlewares.referer.RefererMiddleware': 700,
+#     'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware': 800,
+#     'scrapy.spidermiddlewares.depth.DepthMiddleware': 900,
+#     # Spider side
+# }
+URLLENGTH_LIMIT = 2083
