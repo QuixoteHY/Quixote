@@ -41,7 +41,8 @@ class TestCookiesSpider(quixote.Spider):
         while True:
             i += 1
             url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(i)
-            yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
+            # yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
+            yield quixote.Request(url, dont_filter=True, headers=self.header)
 
     def do_login(self, response):
         print(response)

@@ -74,8 +74,6 @@ class Scraper(object):
             slot.finish_response(response, request)
             self._check_if_closing(spider, slot)
             self._scrape_next(spider, slot)
-            # for item_or_request in request.callback(response):
-            #     print('Parsed {}'.format(item_or_request.decode()))
         except Exception as e:
             logger.error('Scraper bug processing %(request)s %(err)s', {'request': request, 'err': e},
                          extra={'spider': spider})  # ,exc_info=failure_to_exc_info(f),
@@ -99,13 +97,8 @@ class Scraper(object):
         callback = request.callback or spider.parse
         for item_or_request in callback(response):
             yield item_or_request
-            # if isinstance(item_or_request, BaseItem):
-            #     yield 'Parsed\tstatus={}'.format(str(item_or_request['status'])+'\turl='+item_or_request['url'])
-            # else:
-            #     yield 'Parsed Error'
 
     def handle_parser_output(self, result, request, response, spider):
-        # print(result)
         if isinstance(result, Request):
             self.starter.engine.crawl(request=result, spider=spider)
         elif isinstance(result, (BaseItem, dict)):
