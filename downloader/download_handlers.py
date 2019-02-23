@@ -5,14 +5,12 @@
 # @Email    : 1290482442@qq.com
 # @Describe :
 
-import logging
 import six
 
 from quixote.exception.download_handlers import NotConfigured, NotSupportedURLScheme
+from quixote.logger import logger
 from quixote.utils.misc import load_object
 from quixote.utils.httpobj import urlparse_cached
-
-logger = logging.getLogger(__name__)
 
 
 class DownloadHandlers(object):

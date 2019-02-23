@@ -5,12 +5,9 @@
 # @Email    : 1290482442@qq.com
 # @Describe :
 
-import logging
-
 from quixote.middleware import MiddlewareManager
+from quixote.logger import logger
 from quixote.exception.error import ErrorSettings
-
-logger = logging.getLogger(__name__)
 
 
 class ItemPipelineManager(MiddlewareManager):

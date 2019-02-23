@@ -5,16 +5,13 @@
 # @Email    : 1290482442@qq.com
 # @Describe : Downloader Middleware manager
 
-import logging
 import six
-
 import asyncio
 
 from quixote.protocol import Request, Response
+from quixote.logger import logger
 from quixote.exception.error import ErrorSettings
 from quixote.middleware import MiddlewareManager
-
-logger = logging.getLogger(__name__)
 
 
 class DownloaderMiddlewareManager(MiddlewareManager):

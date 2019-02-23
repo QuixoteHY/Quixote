@@ -6,15 +6,13 @@
 # @Describe :
 
 import six
-import logging
 from collections import defaultdict
 
+from quixote.logger import logger
 from quixote.exception.exceptions import NotConfigured
 from quixote.protocol import Response
 from quixote.protocol.cookies import CookieJar
 from quixote.utils.python import to_native_str
-
-logger = logging.getLogger(__name__)
 
 
 class CookiesMiddleware(object):

@@ -6,14 +6,14 @@
 # @Describe : 爬虫启动器
 
 import os
-import logging
 import time
 from threading import Thread
 
 import asyncio
 
-from quixote.settings import Settings
 from quixote import loop
+from quixote.settings import Settings
+from quixote.logger import logger
 from quixote.utils.misc import load_object
 
 from quixote.utils.schedule_func import CallLaterOnce
@@ -21,8 +21,6 @@ import tracemalloc
 
 tracemalloc.start()
 project_path = os.path.dirname(__file__)
-
-logger = logging.getLogger(__name__)
 
 
 class CheckMemory(object):

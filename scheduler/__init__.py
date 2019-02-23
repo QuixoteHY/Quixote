@@ -5,12 +5,10 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 调度器
 
-import logging
 from queue import Queue
 
+from quixote.logger import logger
 from quixote.utils.misc import load_object
-
-logger = logging.getLogger(__name__)
 
 
 class Scheduler(object):
