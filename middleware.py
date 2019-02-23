@@ -6,14 +6,12 @@
 # @Describe :
 
 from collections import defaultdict
-import logging
 import pprint
 
 from quixote.item import BaseItem
+from quixote.logger import logger
 from quixote.exception.exceptions import NotConfigured, DropItem
 from quixote.utils.misc import load_object
-
-logger = logging.getLogger(__name__)
 
 
 class MiddlewareManager(object):
@@ -80,7 +78,6 @@ class MiddlewareManager(object):
                     raise DropItem('DropItem: %s do not return BaseItem or dict' % method_name)
             except DropItem as e:
                 logger.info('DropItem: %s' % e)
-                print('DropItem: ', e)
                 res = False
                 break
         return res

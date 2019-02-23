@@ -5,17 +5,14 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
-import logging
-
 import asyncio
 
 from quixote import loop
 from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
+from quixote.logger import logger
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
-
-logger = logging.getLogger(__name__)
 
 
 class Heart(object):

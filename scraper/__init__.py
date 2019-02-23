@@ -5,14 +5,12 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
-import logging
 from collections import deque
 
 from quixote.protocol import Request, Response
 from quixote.item import BaseItem
+from quixote.logger import logger
 from quixote.utils.misc import load_object
-
-logger = logging.getLogger(__name__)
 
 
 class Slot(object):

@@ -10,5 +10,6 @@ import asyncio
 from quixote.spider import Spider
 from quixote.protocol import Request, FormRequest
 from quixote.item import Item, Field
+from quixote.logger import logger
 
 loop = asyncio.new_event_loop()
