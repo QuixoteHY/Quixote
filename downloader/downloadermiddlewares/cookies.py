@@ -23,7 +23,7 @@ class CookiesMiddleware(object):
         self.debug = debug
 
     @classmethod
-    def from_crawler(cls, starter):
+    def from_starter(cls, starter):
         if not starter.settings['COOKIES_ENABLED']:
             raise NotConfigured
         return cls(starter.settings['COOKIES_DEBUG'])

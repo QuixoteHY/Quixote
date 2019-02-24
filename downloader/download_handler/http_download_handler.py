@@ -41,4 +41,5 @@ class HTTPDownloadHandler(object):
             scrapy_headers[k] = v
         # print(scrapy_headers)
         await asyncio.sleep(1.8)
-        return HtmlResponse(str(response.url), body=content, request=request, headers=scrapy_headers)
+        return HtmlResponse(str(response.url), status=response.status, body=content, request=request,
+                            headers=scrapy_headers)

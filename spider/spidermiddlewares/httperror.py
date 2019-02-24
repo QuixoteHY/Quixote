@@ -18,14 +18,15 @@ class HttpError(IgnoreRequest):
 
 class HttpErrorMiddleware(object):
     def __init__(self, settings):
-        self.handle_http_status_all = settings.getbool('HTTPERROR_ALLOW_ALL')
-        self.handle_http_status_list = settings.getlist('HTTPERROR_ALLOWED_CODES')
+        self.handle_http_status_all = settings['HTTPERROR_ALLOW_ALL']
+        self.handle_http_status_list = settings['HTTPERROR_ALLOWED_CODES']
 
     @classmethod
-    def from_crawler(cls, crawler):
-        return cls(crawler.settings)
+    def from_starter(cls, starter):
+        return cls(starter.settings)
 
     def process_spider_input(self, response, spider):
+        # response.url = response.url + '_200'
         if 200 <= response.status < 300:
             return
         meta = response.meta

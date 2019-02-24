@@ -13,17 +13,20 @@ DOWNLOADER = 'quixote.downloader.Downloader'
 
 REQUEST_FILTER_CLASS = 'None'
 
+
 CONCURRENT_REQUESTS = 400
 CONCURRENT_REQUESTS_PER_DOMAIN = 8
 CONCURRENT_REQUESTS_PER_IP = 0
 
 RANDOMIZE_DOWNLOAD_DELAY = True
 
+
 DOWNLOAD_HANDLERS = {}
 DOWNLOAD_HANDLERS_BASE = {
     'http': 'quixote.downloader.download_handler.http_download_handler.HTTPDownloadHandler',
     'https': 'quixote.downloader.download_handler.http_download_handler.HTTPDownloadHandler'
 }
+
 
 DOWNLOADER_MIDDLEWARES = {}
 DOWNLOADER_MIDDLEWARES_BASE = {
@@ -57,6 +60,7 @@ DEFAULT_REQUEST_HEADERS = {
     'Accept-Language': 'en',
 }
 
+
 ITEM_PROCESSOR = 'quixote.scraper.pipelines.ItemPipelineManager'
 CONCURRENT_ITEMS = 100
 ITEM_PIPELINES = {
@@ -64,8 +68,10 @@ ITEM_PIPELINES = {
 }
 ITEM_PIPELINES_BASE = {}
 
+
 SPIDER_MIDDLEWARES = {}
 SPIDER_MIDDLEWARES_BASE = {
+    'quixote.spider.spidermiddlewares.httperror.HttpErrorMiddleware': 50,
     'quixote.spider.spidermiddlewares.urllength.UrlLengthMiddleware': 800,
 }
 # SPIDER_MIDDLEWARES_BASE = {
@@ -77,4 +83,8 @@ SPIDER_MIDDLEWARES_BASE = {
 #     'scrapy.spidermiddlewares.depth.DepthMiddleware': 900,
 #     # Spider side
 # }
+
 URLLENGTH_LIMIT = 2083
+
+HTTPERROR_ALLOW_ALL = False
+HTTPERROR_ALLOWED_CODES = list()

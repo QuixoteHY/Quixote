@@ -46,13 +46,16 @@ class SpiderMiddlewareManager(MiddlewareManager):
     def scrape_response(self, scrape_func, response, request, spider):
         def process_spider_input(_response):
             for method in self.methods['process_spider_input']:
-                try:
-                    _result = method(response=_response, spider=spider)
-                    assert _result is None, 'Middleware %s must returns None or raise an exception, got %s ' \
-                                            % (fun_name(method), type(_result))
-                except Exception as e:
-                    logger.warn(e)
-                    return scrape_func(e, request, spider)
+                # try:
+                #     _result = method(response=_response, spider=spider)
+                #     assert _result is None, 'Middleware %s must returns None or raise an exception, got %s ' \
+                #                             % (fun_name(method), type(_result))
+                # except Exception as e:
+                #     logger.warn(e)
+                #     return scrape_func(e, request, spider)
+                _result = method(response=_response, spider=spider)
+                assert _result is None, 'Middleware %s must returns None or raise an exception, got %s ' \
+                                        % (fun_name(method), type(_result))
             return scrape_func(_response, request, spider)
 
         # def process_spider_exception(_failure):
@@ -72,8 +75,14 @@ class SpiderMiddlewareManager(MiddlewareManager):
                 assert is_iterable(_result), 'Middleware %s must returns an iterable object, got %s ' % \
                                              (fun_name(method), type(_result))
             return _result
-        result = process_spider_input(response)
-        return process_spider_output(result)
+
+        try:
+            result = process_spider_input(response)
+            return process_spider_output(result)
+        except Exception as e:
+            print('type(e) = ', type(e))
+            logger.warn(e)
+            return [e]
 
     def process_start_requests(self, start_requests, spider):
         return self._process_chain('process_start_requests', start_requests, spider)

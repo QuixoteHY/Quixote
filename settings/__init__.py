@@ -48,6 +48,8 @@ class Settings(object):
         if settings.SPIDER_MIDDLEWARES:
             self.settings['SPIDER_MIDDLEWARES'].update(settings.SPIDER_MIDDLEWARES)
         self.settings['URLLENGTH_LIMIT'] = settings.URLLENGTH_LIMIT
+        self.settings['HTTPERROR_ALLOW_ALL'] = settings.HTTPERROR_ALLOW_ALL
+        self.settings['HTTPERROR_ALLOWED_CODES'] = settings.HTTPERROR_ALLOWED_CODES
 
     def get_settings(self):
         return copy.deepcopy(self.settings)

@@ -14,7 +14,7 @@ class DefaultHeadersMiddleware(object):
         self._headers = headers
 
     @classmethod
-    def from_crawler(cls, starter):
+    def from_starter(cls, starter):
         headers = without_none_values(starter.settings['DEFAULT_REQUEST_HEADERS'])
         return cls(headers.items())
 

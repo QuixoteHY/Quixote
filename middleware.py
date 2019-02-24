@@ -35,8 +35,8 @@ class MiddlewareManager(object):
         for clspath in mwlist:
             try:
                 mwcls = load_object(clspath)
-                if starter and hasattr(mwcls, 'from_crawler'):
-                    mw = mwcls.from_crawler(starter)
+                if starter and hasattr(mwcls, 'from_starter'):
+                    mw = mwcls.from_starter(starter)
                 elif hasattr(mwcls, 'from_settings'):
                     mw = mwcls.from_settings(settings)
                 else:
