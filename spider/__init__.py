@@ -24,14 +24,14 @@ class Spider(object):
             self.start_urls = []
 
     @classmethod
-    def from_crawler(cls, crawler, *args, **kwargs):
+    def from_starter(cls, starter, *args, **kwargs):
         spider = cls(*args, **kwargs)
-        spider._set_crawler(crawler)
+        spider._set_starter(starter)
         return spider
 
-    def _set_crawler(self, crawler):
-        self.crawler = crawler
-        self.settings = crawler.settings
+    def _set_starter(self, starter):
+        self.starter = starter
+        self.settings = starter.settings
 
     def before_start_requests(self):
         """目前可用于（后续有其他需求将继续添加并改进相关代码）：

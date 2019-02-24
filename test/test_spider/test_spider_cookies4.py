@@ -50,6 +50,7 @@ class TestCookiesSpider(quixote.Spider):
         self._xsrf = response.xpath(".//form/input[1]/@value").extract()[0]
         print(self._xsrf)
         yield b'do_login......'
+        # return 100
 
     def is_login(self, response):
         print(response)

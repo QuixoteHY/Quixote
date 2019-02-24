@@ -84,7 +84,7 @@ class Starter(object):
             loop.stop()
 
     def _create_spider(self, *args, **kwargs):
-        return self.spider_class.from_crawler(self, *args, **kwargs)
+        return self.spider_class.from_starter(self, *args, **kwargs)
 
     def _create_engine(self):
         return self.engine_class(self)
