@@ -117,7 +117,7 @@ class Scraper(object):
         self.slot.itemproc_size -= 1
         if output:
             print('Parsed\tstatus={}'.format(str(item['status']) + '\turl=' + item['url']
-                                             + '\tpipeline=' + str(item['pipeline'])))
+                                             + '\tpipeline=' + str(item['pipeline']) + ' q=' + item['q']))
         else:
             print('Parsed Error...')
 

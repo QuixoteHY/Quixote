@@ -29,5 +29,6 @@ class UrlLengthMiddleware(object):
                             extra={'spider': spider})
                 return False
             else:
+                # request['q'] = 'UrlLengthMiddleware'
                 return True
         return (r for r in result or () if _filter(r))

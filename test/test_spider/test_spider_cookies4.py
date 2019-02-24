@@ -70,13 +70,15 @@ class TestCookiesSpider(quixote.Spider):
             yield quixote.Request(url % self.j, dont_filter=True, headers=self.header)
             yield quixote.Request(url % (self.j+1), dont_filter=True, headers=self.header)
             yield quixote.Request(url % (self.j+2), dont_filter=True, headers=self.header)
-            yield quixote.Request(url % (self.j+3), dont_filter=True, headers=self.header)
+            yield quixote.Request('http://' + self.host + ':8000/test_cookies/OOOOOOOOOOO_PARSE_RECORD_%s' % (self.j+3),
+                                  dont_filter=True, headers=self.header)
             yield quixote.Request(url % (self.j+4), dont_filter=True, headers=self.header)
         time.sleep(0.05)
         item = TestItem()
         item['status'] = response.status
         item['url'] = response.url
         item['pipeline'] = list()
+        item['q'] = ''
         yield item
 
 
