@@ -69,7 +69,9 @@ ITEM_PIPELINES = {
 ITEM_PIPELINES_BASE = {}
 
 
-SPIDER_MIDDLEWARES = {}
+SPIDER_MIDDLEWARES = {
+    'quixote.test.test_spider.test_middleware.TestMiddleware': 100,
+}
 SPIDER_MIDDLEWARES_BASE = {
     'quixote.spider.spidermiddlewares.httperror.HttpErrorMiddleware': 50,
     'quixote.spider.spidermiddlewares.urllength.UrlLengthMiddleware': 800,

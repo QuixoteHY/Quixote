@@ -5,6 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 爬虫中间件
 
+from quixote.protocol import Request
 from quixote.middleware import MiddlewareManager
 from quixote.logger import logger
 from quixote.exception.error import ErrorSettings
@@ -46,28 +47,20 @@ class SpiderMiddlewareManager(MiddlewareManager):
     def scrape_response(self, scrape_func, response, request, spider):
         def process_spider_input(_response):
             for method in self.methods['process_spider_input']:
-                # try:
-                #     _result = method(response=_response, spider=spider)
-                #     assert _result is None, 'Middleware %s must returns None or raise an exception, got %s ' \
-                #                             % (fun_name(method), type(_result))
-                # except Exception as e:
-                #     logger.warn(e)
-                #     return scrape_func(e, request, spider)
                 _result = method(response=_response, spider=spider)
                 assert _result is None, 'Middleware %s must returns None or raise an exception, got %s ' \
                                         % (fun_name(method), type(_result))
             return scrape_func(_response, request, spider)
 
-        # def process_spider_exception(_failure):
-        #     exception = _failure.value
-        #     for method in self.methods['process_spider_exception']:
-        #         _result = method(response=response, exception=exception, spider=spider)
-        #         assert _result is None or is_iterable(_result), \
-        #             'Middleware %s must returns None, or an iterable object, got %s ' % \
-        #             (fun_name(method), type(_result))
-        #         if _result is not None:
-        #             return _result
-        #     return _failure
+        def process_spider_exception(exception):
+            for method in self.methods['process_spider_exception']:
+                _result = method(response=response, exception=exception, spider=spider)
+                assert _result is None or is_iterable(_result), \
+                    'Middleware %s must returns None, or an iterable object, got %s ' % \
+                    (fun_name(method), type(_result))
+                if _result is not None:
+                    return _result
+            return exception
         
         def process_spider_output(_result):
             for method in self.methods['process_spider_output']:
@@ -80,9 +73,15 @@ class SpiderMiddlewareManager(MiddlewareManager):
             result = process_spider_input(response)
             return process_spider_output(result)
         except Exception as e:
-            print('type(e) = ', type(e))
-            logger.warn(e)
+            result = process_spider_exception(e)
+            if is_iterable(result):
+                return process_spider_output(result)
             return [e]
 
     def process_start_requests(self, start_requests, spider):
-        return self._process_chain('process_start_requests', start_requests, spider)
+        for request in start_requests:
+            for method in self.methods['process_start_requests']:
+                request = method(request=request, spider=spider)
+                assert isinstance(request, Request), 'Middleware %s must returns a Request, got %s ' % \
+                                                     (fun_name(method), type(request))
+            yield request
