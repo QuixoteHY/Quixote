@@ -15,7 +15,7 @@ import six
 import warnings
 from collections import OrderedDict, Mapping
 
-from quixote.exception.exceptions import ScrapyDeprecationWarning
+from quixote.exceptions import QuixoteDeprecationWarning
 
 
 class MultiValueDictKeyError(KeyError):
@@ -23,7 +23,7 @@ class MultiValueDictKeyError(KeyError):
         warnings.warn(
             "scrapy.utils.datatypes.MultiValueDictKeyError is deprecated "
             "and will be removed in future releases.",
-            category=ScrapyDeprecationWarning,
+            category=QuixoteDeprecationWarning,
             stacklevel=2
         )
         super(MultiValueDictKeyError, self).__init__(*args, **kwargs)
@@ -47,7 +47,7 @@ class MultiValueDict(dict):
     def __init__(self, key_to_list_mapping=()):
         warnings.warn("scrapy.utils.datatypes.MultiValueDict is deprecated "
                       "and will be removed in future releases.",
-                      category=ScrapyDeprecationWarning,
+                      category=QuixoteDeprecationWarning,
                       stacklevel=2)
         dict.__init__(self, key_to_list_mapping)
 
@@ -162,7 +162,7 @@ class SiteNode(object):
         warnings.warn(
             "scrapy.utils.datatypes.SiteNode is deprecated "
             "and will be removed in future releases.",
-            category=ScrapyDeprecationWarning,
+            category=QuixoteDeprecationWarning,
             stacklevel=2
         )
 

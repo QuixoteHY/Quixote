@@ -7,7 +7,7 @@
 
 from quixote.protocol import Request
 from quixote.logger import logger
-from quixote.exception.exceptions import NotConfigured
+from quixote.exceptions import NotConfigured
 
 
 class UrlLengthMiddleware(object):

@@ -9,7 +9,7 @@ from collections import defaultdict
 import pprint
 
 from quixote.logger import logger
-from quixote.exception.exceptions import NotConfigured
+from quixote.exceptions import NotConfigured
 from quixote.utils.misc import load_object
 
 

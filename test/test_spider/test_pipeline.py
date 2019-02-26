@@ -1,5 +1,5 @@
 
-from quixote.exception.exceptions import DropItem
+from quixote.exceptions import DropItem
 
 
 class TestPipeline(object):

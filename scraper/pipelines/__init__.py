@@ -8,8 +8,7 @@
 from quixote.item import BaseItem
 from quixote.middleware import MiddlewareManager
 from quixote.logger import logger
-from quixote.exception.exceptions import DropItem
-from quixote.exception.error import ErrorSettings
+from quixote.exceptions import DropItem, ErrorSettings
 
 
 class ItemPipelineManager(MiddlewareManager):

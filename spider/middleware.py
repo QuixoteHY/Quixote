@@ -8,7 +8,7 @@
 from quixote.protocol import Request
 from quixote.middleware import MiddlewareManager
 from quixote.logger import logger
-from quixote.exception.error import ErrorSettings
+from quixote.exceptions import ErrorSettings
 from quixote.utils.misc import fun_name, is_iterable
 
 

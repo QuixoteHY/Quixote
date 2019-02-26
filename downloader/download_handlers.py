@@ -7,7 +7,7 @@
 
 import six
 
-from quixote.exception.download_handlers import NotConfigured, NotSupportedURLScheme
+from quixote.exceptions import NotConfigured, NotSupportedURLScheme
 from quixote.logger import logger
 from quixote.utils.misc import load_object
 from quixote.utils.httpobj import urlparse_cached

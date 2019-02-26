@@ -9,7 +9,7 @@ from six.moves.urllib.parse import urljoin
 
 from quixote.protocol.request import Request
 from quixote.protocol.headers import Headers
-from quixote.exception.exceptions import NotSupported
+from quixote.exceptions import NotSupported
 # from quixote.utils.trackref import ObjectRef
 from quixote.protocol.link import Link
 

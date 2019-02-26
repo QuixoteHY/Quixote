@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-# @Time     : 2019-01-17 00:04
+# @Time     : 2019-02-26 08:56
 # @Author   : 胡远
 # @Github   : https://github.com/QuixoteHY
 # @Email    : 1290482442@qq.com
@@ -57,7 +57,7 @@ class UsageError(Exception):
         super(UsageError, self).__init__(*a, **kw)
 
 
-class ScrapyDeprecationWarning(Warning):
+class QuixoteDeprecationWarning(Warning):
     """Warning category for deprecated features, since the default
     DeprecationWarning is silenced on Python 2.7+
     """
@@ -66,4 +66,26 @@ class ScrapyDeprecationWarning(Warning):
 
 class ContractFail(AssertionError):
     """Error raised in case of a failing contract"""
+    pass
+
+# Other
+
+
+class NoCallbackError(Exception):
+    pass
+
+
+class NoRequestInQueue(Exception):
+    pass
+
+
+class NotSupportedURLScheme(Exception):
+    pass
+
+
+class ErrorNeedExit(Exception):
+    pass
+
+
+class ErrorSettings(ErrorNeedExit):
     pass

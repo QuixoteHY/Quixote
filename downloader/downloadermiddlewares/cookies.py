@@ -9,7 +9,7 @@ import six
 from collections import defaultdict
 
 from quixote.logger import logger
-from quixote.exception.exceptions import NotConfigured
+from quixote.exceptions import NotConfigured
 from quixote.protocol import Response
 from quixote.protocol.cookies import CookieJar
 from quixote.utils.python import to_native_str

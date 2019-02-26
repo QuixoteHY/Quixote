@@ -10,7 +10,7 @@ from functools import wraps
 
 from twisted.internet import defer, threads
 
-from quixote.exception.exceptions import ScrapyDeprecationWarning
+from quixote.exceptions import QuixoteDeprecationWarning
 
 
 def deprecated(use_instead=None):
@@ -24,7 +24,7 @@ def deprecated(use_instead=None):
             message = "Call to deprecated function %s." % func.__name__
             if use_instead:
                 message += " Use %s instead." % use_instead
-            warnings.warn(message, category=ScrapyDeprecationWarning, stacklevel=2)
+            warnings.warn(message, category=QuixoteDeprecationWarning, stacklevel=2)
             return func(*args, **kwargs)
         return wrapped
 

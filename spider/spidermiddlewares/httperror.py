@@ -6,7 +6,7 @@
 # @Describe :
 
 from quixote.logger import logger
-from quixote.exception.exceptions import IgnoreRequest
+from quixote.exceptions import IgnoreRequest
 
 
 class HttpError(IgnoreRequest):

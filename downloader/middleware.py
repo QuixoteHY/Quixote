@@ -10,7 +10,7 @@ import asyncio
 
 from quixote.protocol import Request, Response
 from quixote.logger import logger
-from quixote.exception.error import ErrorSettings
+from quixote.exceptions import ErrorSettings
 from quixote.middleware import MiddlewareManager
 
 
