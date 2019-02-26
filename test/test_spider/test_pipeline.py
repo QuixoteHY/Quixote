@@ -14,3 +14,9 @@ class TestPipeline(object):
             return item
         else:
             raise DropItem('TestPipeline DropItem: %s' % item)
+
+
+class TestPipeline2(object):
+    def process_item(self, item, spider):
+        item['pipeline'].append('PIP2')
+        return item

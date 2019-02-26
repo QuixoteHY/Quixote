@@ -5,8 +5,10 @@
 # @Email    : 1290482442@qq.com
 # @Describe :
 
+from quixote.item import BaseItem
 from quixote.middleware import MiddlewareManager
 from quixote.logger import logger
+from quixote.exception.exceptions import DropItem
 from quixote.exception.error import ErrorSettings
 
 
@@ -37,4 +39,14 @@ class ItemPipelineManager(MiddlewareManager):
             self.methods['process_item'].append(pipe.process_item)
 
     def process_item(self, item, spider):
-        return self._process_chain('process_item', item, spider)
+        res = True
+        for method in self.methods['process_item']:
+            try:
+                item = method(item, spider)
+                if not isinstance(item, (BaseItem, dict)):
+                    raise DropItem('DropItem: process_item do not return BaseItem or dict')
+            except DropItem as e:
+                logger.info('DropItem: %s' % e)
+                res = False
+                break
+        return res

@@ -65,6 +65,7 @@ ITEM_PROCESSOR = 'quixote.scraper.pipelines.ItemPipelineManager'
 CONCURRENT_ITEMS = 100
 ITEM_PIPELINES = {
     'quixote.test.test_spider.test_pipeline.TestPipeline': 100,
+    'quixote.test.test_spider.test_pipeline.TestPipeline2': 101,
 }
 ITEM_PIPELINES_BASE = {}
 
