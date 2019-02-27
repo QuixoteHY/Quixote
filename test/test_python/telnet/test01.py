@@ -50,11 +50,11 @@ def read_word(reader, writer):
 
 @asyncio.coroutine
 def shell3(reader, writer):
-    writer.write('\r\n>Quixote Telnet')
+    writer.write('\r\n>>>Quixote Telnet')
     yield from writer.drain()
     while True:
         try:
-            writer.write('\r\n>')
+            writer.write('\r\n>>>')
             word = yield from read_word(reader, writer)
             if word == 'exit':
                 break
