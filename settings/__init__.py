@@ -51,6 +51,14 @@ class Settings(object):
         self.settings['HTTPERROR_ALLOW_ALL'] = settings.HTTPERROR_ALLOW_ALL
         self.settings['HTTPERROR_ALLOWED_CODES'] = settings.HTTPERROR_ALLOWED_CODES
 
+        self.settings['EXTENSIONS'] = settings.EXTENSIONS_BASE
+        if settings.EXTENSIONS:
+            self.settings['EXTENSIONS'].update(settings.EXTENSIONS)
+
+        self.settings['TELNETCONSOLE_ENABLED'] = settings.TELNETCONSOLE_ENABLED
+        self.settings['TELNETCONSOLE_PORT'] = settings.TELNETCONSOLE_PORT
+        self.settings['TELNETCONSOLE_HOST'] = settings.TELNETCONSOLE_HOST
+
     def get_settings(self):
         return copy.deepcopy(self.settings)
 

@@ -14,6 +14,8 @@ import asyncio
 from quixote import loop
 from quixote.settings import Settings
 from quixote.logger import logger
+from quixote.extension import ExtensionManager
+from quixote.signals.singalmanager import SignalManager
 from quixote.utils.misc import load_object
 
 from quixote.utils.schedule_func import CallLaterOnce
@@ -56,6 +58,9 @@ class Starter(object):
         print(self.settings)
         self.engine_class = load_object(self.settings['ENGINE'])
         self.spider_class = load_object(spider_class)
+        # self.signals = SignalManager(self)
+        self.signals = SignalManager()
+        self.extensions = ExtensionManager.from_starter(self)
         self.engine = None
         self.spider = None
         self.crawling = False

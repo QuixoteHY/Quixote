@@ -7,9 +7,12 @@
 
 import asyncio
 
+from pydispatch import dispatcher
+
 from quixote import loop
 from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
+from quixote.signals import engine_started
 from quixote.logger import logger
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
@@ -33,6 +36,7 @@ class Engine(object):
     def __init__(self, starter):
         self.starter = starter
         self.settings = starter.settings
+        self.signals = starter.signals
         self.loop = None
         self.spider = None
         self.scheduler = None
@@ -109,6 +113,9 @@ class Engine(object):
         self.heart.next_call.schedule()
 
     def start(self, spider):
+        first_send = ()
+        # self.signals.send(engine_started, first_send)
+        dispatcher.send(signal=engine_started, sender=first_send)
         self.spider = spider
         self.before_start_requests(self.spider)
         next_call = CallLaterOnce(self._next_request, spider)

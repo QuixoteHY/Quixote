@@ -91,3 +91,24 @@ URLLENGTH_LIMIT = 2083
 
 HTTPERROR_ALLOW_ALL = False
 HTTPERROR_ALLOWED_CODES = list()
+
+
+EXTENSIONS = {}
+EXTENSIONS_BASE = {
+    'quixote.extension.telnet.TelnetConsole': 100,
+}
+# EXTENSIONS_BASE = {
+#     'scrapy.extensions.corestats.CoreStats': 0,
+#     'scrapy.extensions.telnet.TelnetConsole': 0,
+#     'scrapy.extensions.memusage.MemoryUsage': 0,
+#     'scrapy.extensions.memdebug.MemoryDebugger': 0,
+#     'scrapy.extensions.closespider.CloseSpider': 0,
+#     'scrapy.extensions.feedexport.FeedExporter': 0,
+#     'scrapy.extensions.logstats.LogStats': 0,
+#     'scrapy.extensions.spiderstate.SpiderState': 0,
+#     'scrapy.extensions.throttle.AutoThrottle': 0,
+# }
+
+TELNETCONSOLE_ENABLED = 1
+TELNETCONSOLE_PORT = [6023, 6073]
+TELNETCONSOLE_HOST = '127.0.0.1'
