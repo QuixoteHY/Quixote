@@ -30,6 +30,6 @@ if __name__ == '__main__':
 
     sm = SignalManager()
     sm.connect(handle_event, signal=SIGNAL)
-    sm.connect(handle_event1, signal=SIGNAL1)
+    sm.connect(handle_event1, signal=SIGNAL)
     # sm.sender(SIGNAL, sender=first_send)
     dispatcher.send(signal=SIGNAL, sender=first_send)

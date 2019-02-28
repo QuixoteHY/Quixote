@@ -9,8 +9,8 @@ from pydispatch import dispatcher
 
 
 class SignalManager(object):
-    def __init__(self, sender=dispatcher.Any):
-        self.sender = sender
+    def __init__(self):
+        self.sender = dispatcher.Any
 
     def connect(self, receiver, signal):
         return dispatcher.connect(receiver, signal, self.sender)

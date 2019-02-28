@@ -7,8 +7,6 @@
 
 import asyncio
 
-from pydispatch import dispatcher
-
 from quixote import loop
 from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
@@ -48,9 +46,18 @@ class Engine(object):
         self.running = False
         self.crawling = []
         self.max = 5
+        self.paused = False
+
+    def pause(self):
+        self.paused = True
+
+    def un_pause(self):
+        self.paused = False
 
     def _next_request(self, spider):
         if not self.heart:
+            return
+        if self.paused:
             return
         heart = self.heart
         while not self._needs_slowdown():
@@ -113,9 +120,7 @@ class Engine(object):
         self.heart.next_call.schedule()
 
     def start(self, spider):
-        first_send = ()
-        # self.signals.send(engine_started, first_send)
-        dispatcher.send(signal=engine_started, sender=first_send)
+        self.signals.send(engine_started, self)
         self.spider = spider
         self.before_start_requests(self.spider)
         next_call = CallLaterOnce(self._next_request, spider)

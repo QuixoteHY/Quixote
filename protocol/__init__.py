@@ -11,3 +11,5 @@ from quixote.protocol.response import Response
 from quixote.protocol.response.text import TextResponse
 from quixote.protocol.response.html import HtmlResponse
 from quixote.protocol.response.xml import XmlResponse
+
+from quixote.protocol.telnet.telnetserver import TelnetServer

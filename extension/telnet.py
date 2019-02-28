@@ -5,14 +5,18 @@
 # @Email    : 1290482442@qq.com
 # @Describe :
 
+import asyncio
+
 try:
     import telnetlib3
-    TWISTED_CONCH_AVAILABLE = True
+    TELNET_LIB_AVAILABLE = True
 except ImportError:
-    TWISTED_CONCH_AVAILABLE = False
+    TELNET_LIB_AVAILABLE = False
 
 from quixote.signals import engine_started, engine_stopped
+from quixote import loop
 from quixote.logger import logger
+from quixote.protocol import TelnetServer
 from quixote.exceptions import NotConfigured
 
 
@@ -20,7 +24,7 @@ class TelnetConsole(object):
     def __init__(self, starter):
         if not starter.settings['TELNETCONSOLE_ENABLED']:
             raise NotConfigured
-        if not TWISTED_CONCH_AVAILABLE:
+        if not TELNET_LIB_AVAILABLE:
             raise NotConfigured
         self.starter = starter
         self.noisy = False
@@ -28,14 +32,17 @@ class TelnetConsole(object):
         self.host = starter.settings['TELNETCONSOLE_HOST']
         self.starter.signals.connect(self.start_listening, engine_started)
         self.starter.signals.connect(self.stop_listening, engine_stopped)
+        self.telnet_server = TelnetServer()
 
     @classmethod
     def from_starter(cls, starter):
         return cls(starter)
 
-    def start_listening(self):
+    def start_listening(self, sender):
         logger.info("Telnet console listening on %(host)s:%(port)d", {'host': self.host, 'port': self.portrange[0]},
                     extra={'starter': self.starter})
+        logger.info(type(sender))
+        asyncio.run_coroutine_threadsafe(self.telnet_server.create_server(self.portrange[0], sender), loop)
 
-    def stop_listening(self):
+    def stop_listening(self, sender):
         pass
