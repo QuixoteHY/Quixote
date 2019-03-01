@@ -40,11 +40,11 @@ class StateInspector(object):
             # "len(engine.slot.inprogress)",
             # "len(engine.slot.scheduler.dqs or [])",
             # "len(engine.slot.scheduler.mqs)",
-            # "len(engine.scraper.slot.queue)",
-            # "len(engine.scraper.slot.active)",
-            # "engine.scraper.slot.active_size",
-            # "engine.scraper.slot.itemproc_size",
-            # "engine.scraper.slot.needs_backout()",
+            "len(engine.scraper.slot.queue)",
+            "len(engine.scraper.slot.active)",
+            "engine.scraper.slot.active_size",
+            "engine.scraper.slot.itemproc_size",
+            "engine.scraper.slot.needs_slowdown()",
         ]
         checks = []
         for test in tests:
@@ -56,10 +56,9 @@ class StateInspector(object):
 
     def format_engine_status(self):
         checks = self.get_engine_status()
-        s = "Execution engine status\n\n"
+        s = "-"*80+"\r\n"+"Quixote engine status\r\n"+"-"*80+"\r\n"
         for test, result in checks:
-            s += "%-47s : %s\n" % (test, result)
-        s += "\n"
+            s += "%-47s : %s\r\n" % (test, result)
         return s
 
     @staticmethod
