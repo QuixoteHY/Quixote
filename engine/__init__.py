@@ -5,6 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
+import time
 import asyncio
 
 from quixote import loop
@@ -47,12 +48,7 @@ class Engine(object):
         self.crawling = []
         self.max = 5
         self.paused = False
-
-    def pause(self):
-        self.paused = True
-
-    def un_pause(self):
-        self.paused = False
+        self.start_time = 0
 
     def _next_request(self, spider):
         if not self.heart:
@@ -119,7 +115,14 @@ class Engine(object):
         self.heart.scheduler.push_request(request)
         self.heart.next_call.schedule()
 
+    def pause(self):
+        self.paused = True
+
+    def un_pause(self):
+        self.paused = False
+
     def start(self, spider):
+        self.start_time = time.time()
         self.signals.send(engine_started, self)
         self.spider = spider
         self.before_start_requests(self.spider)
