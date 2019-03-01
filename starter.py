@@ -71,6 +71,8 @@ class Starter(object):
         loop.run_forever()
 
     def start(self):
+        assert not self.crawling, "Crawling already taking place"
+        self.crawling = True
         start = int(time.time())
         # t = Thread(target=self._start)
         # t.setDaemon(True)
@@ -83,6 +85,9 @@ class Starter(object):
             self.engine = self._create_engine()
             self.engine.start(self.spider)
         except KeyboardInterrupt as e:
+            self.crawling = False
+            if self.engine is not None:
+                self.engine.close()
             print(e)
             print('total time: '+str(int(time.time())-start))
             loop.stop()

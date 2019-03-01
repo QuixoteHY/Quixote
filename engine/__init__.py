@@ -50,6 +50,24 @@ class Engine(object):
         self.paused = False
         self.start_time = 0
 
+    def close(self):
+        """Close the engine gracefully.
+        If it has already been started, stop it. In all cases, close all spiders and the downloader.
+        :return:
+        """
+        if self.running:
+            # Will also close spiders and downloader
+            return self.stop()
+        # elif self.open_spiders:
+        #     # Will also close downloader
+        #     return self._close_all_spiders()
+        else:
+            pass
+            # return self.downloader.close()
+
+    def stop(self):
+        pass
+
     def _next_request(self, spider):
         if not self.heart:
             return
@@ -123,6 +141,7 @@ class Engine(object):
 
     def start(self, spider):
         self.start_time = time.time()
+        self.running = True
         self.signals.send(engine_started, self)
         self.spider = spider
         self.before_start_requests(self.spider)
