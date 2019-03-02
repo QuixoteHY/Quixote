@@ -39,3 +39,6 @@ class Scheduler(object):
 
     def size(self):
         return self.q.qsize()
+
+    def has_pending_requests(self):
+        return self.q.qsize() > 0

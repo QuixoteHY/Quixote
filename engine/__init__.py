@@ -18,10 +18,12 @@ from quixote.utils.schedule_func import CallLaterOnce
 
 
 class Heart(object):
-    def __init__(self, start_requests, next_call, scheduler):
+    def __init__(self, start_requests, close_if_idle, next_call, scheduler):
         self.start_requests = iter(start_requests)
+        self.close_if_idle = close_if_idle
         self.next_call = next_call
         self.scheduler = scheduler
+        self.closing = False
 
     def _heartbeat(self, interval):
         self.next_call.schedule()
@@ -88,6 +90,35 @@ class Engine(object):
                              extra={'spider': spider, 'exc_info': str(e)})
             else:
                 self.crawl(request, spider)
+        if self.spider_is_idle() and heart.close_if_idle:
+            self._spider_idle(spider)
+
+    def spider_is_idle(self):
+        if not self.scraper.slot.is_idle():
+            # scraper is not idle
+            return False
+        if self.downloader.active:
+            # downloader has pending requests
+            return False
+        if self.heart.start_requests is not None:
+            # not all start requests are handled
+            return False
+        if self.heart.scheduler.has_pending_requests():
+            # scheduler has pending requests
+            return False
+        return True
+
+    def _spider_idle(self, spider):
+        if self.spider_is_idle():
+            self.close_spider(spider, reason='finished')
+
+    def close_spider(self, spider, reason='cancelled'):
+        """Close (cancel) spider and clear all its outstanding requests"""
+        heart = self.heart
+        if heart.closing:
+            return heart.closing
+        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
+        heart.close()
 
     def _needs_slowdown(self):
         return self.downloader.needs_slowdown()
@@ -139,7 +170,7 @@ class Engine(object):
     def un_pause(self):
         self.paused = False
 
-    def start(self, spider):
+    def start(self, spider, close_if_idle=True):
         self.start_time = time.time()
         self.running = True
         self.signals.send(engine_started, self)
@@ -149,7 +180,7 @@ class Engine(object):
         scheduler = self.scheduler_class.from_starter(self.starter)
         # start_requests = self.spider.start_requests()
         start_requests = self.scraper.spidermw.process_start_requests(self.spider.start_requests(), spider)
-        self.heart = Heart(start_requests, next_call, scheduler)
+        self.heart = Heart(start_requests, close_if_idle, next_call, scheduler)
         self.scraper.open_spider(spider)
         self.heart.next_call.schedule()
         self.heart.start(5)
