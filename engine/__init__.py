@@ -138,6 +138,7 @@ class Engine(object):
             return heart.closing
         heart.close()
         logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
+        loop.call_later(3, self.starter.close)
 
     def _needs_slowdown(self):
         return self.downloader.needs_slowdown()
@@ -192,7 +193,6 @@ class Engine(object):
         self.before_start_requests(self.spider)
         next_call = CallLaterOnce(self._next_request, spider)
         scheduler = self.scheduler_class.from_starter(self.starter)
-        # start_requests = self.spider.start_requests()
         start_requests = self.scraper.spidermw.process_start_requests(self.spider.start_requests(), spider)
         self.heart = Heart(start_requests, close_if_idle, next_call, scheduler)
         self.scraper.open_spider(spider)

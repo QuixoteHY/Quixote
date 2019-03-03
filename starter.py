@@ -7,9 +7,6 @@
 
 import os
 import time
-from threading import Thread
-
-import asyncio
 
 from quixote import loop
 from quixote.settings import Settings
@@ -64,19 +61,12 @@ class Starter(object):
         self.spider = None
         self.crawling = False
         self.is_check_emmory = is_check_emmory
-
-    @staticmethod
-    def _start():
-        asyncio.set_event_loop(loop)
-        loop.run_forever()
+        self.start_time = None
 
     def start(self):
         assert not self.crawling, "Crawling already taking place"
         self.crawling = True
-        start = int(time.time())
-        # t = Thread(target=self._start)
-        # t.setDaemon(True)
-        # t.start()
+        self.start_time = int(time.time())
         try:
             if self.is_check_emmory:
                 cm = CheckMemory()
@@ -85,12 +75,15 @@ class Starter(object):
             self.engine = self._create_engine()
             self.engine.start(self.spider)
         except KeyboardInterrupt as e:
-            self.crawling = False
-            if self.engine is not None:
-                self.engine.close()
-            print(e)
-            print('total time: '+str(int(time.time())-start))
-            loop.stop()
+            logger.info(e)
+            self.close()
+
+    def close(self):
+        self.crawling = False
+        if self.engine is not None:
+            self.engine.close()
+        logger.info('total time: '+str(int(time.time())-self.start_time))
+        loop.stop()
 
     def _create_spider(self, *args, **kwargs):
         return self.spider_class.from_starter(self, *args, **kwargs)
