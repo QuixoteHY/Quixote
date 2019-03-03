@@ -65,29 +65,44 @@ class Scraper(object):
         self.slot = Slot()
         self.itemmw.open_spider(spider)
 
-    def enqueue_scrape2(self, response, request, spider):
+    def close_spider(self, spider):
+        """Close a spider being scraped and release its resources"""
+        slot = self.slot
+        slot.closing = True
+        # slot.closing.addCallback(self.itemproc.close_spider)
+        self._check_if_closing(spider, slot)
+        return slot.closing
+
+    def is_idle(self):
+        """Return True if there isn't any more spiders to process"""
+        return not self.slot
+
+    def _check_if_closing(self, spider, slot):
+        if slot.closing and slot.is_idle():
+            # slot.closing.callback(spider)
+            logger.info('Scraper close successfully.')
+
+    def enqueue_scrape(self, response, request, spider):
         slot = self.slot
         try:
             slot.add_response_request(response, request)
-            self._scrape_next(spider, slot)
-            slot.finish_response(response, request)
-            self._check_if_closing(spider, slot)
+            # print('queue: ', len(self.slot.queue), '\tactive: ', len(self.slot.active))
             self._scrape_next(spider, slot)
         except Exception as e:
             logger.error('Scraper bug processing %(request)s %(err)s', {'request': request, 'err': logger.exception(e)},
                          extra={'spider': spider})  # ,exc_info=failure_to_exc_info(f),
 
     def _scrape_next(self, spider, slot):
-        while slot.queue:
-            response, request = slot.next_response_request()
-            self._scrape(response, request, spider)
+        response, request = slot.next_response_request()
+        # print('queue: ', len(self.slot.queue), '\tactive: ', len(self.slot.active))
+        self._scrape(response, request, spider)
+        slot.finish_response(response, request)
+        # print('queue: ', len(self.slot.queue), '\tactive: ', len(self.slot.active))
 
     def _scrape(self, response, request, spider):
         """Handle the downloaded response or failure through the spider call_back/errback"""
         # assert isinstance(response, (Response, Failure))
         assert isinstance(response, Response)
-        # for result in self.call_parser(response, request, spider):
-        #     self.handle_parser_output(result, request, response, spider)
         for result in self.spidermw.scrape_response(self.call_parser, response, request, spider):
             self.handle_parser_output(result, request, response, spider)
         # self.handle_spider_error(result, request, response, spider)
@@ -106,7 +121,6 @@ class Scraper(object):
             self.slot.itemproc_size += 1
             output = self.itemmw.process_item(result, spider)
             self._itemproc_finished(output, result, response, spider)
-            # print('Parsed\tstatus={}'.format(str(result['status'])+'\turl='+result['url']))
         elif result is None:
             pass
         else:
@@ -123,12 +137,3 @@ class Scraper(object):
 
     def handle_spider_error(self, _failure, request, response, spider):
         pass
-
-    def _check_if_closing(self, spider, slot):
-        # if slot.closing and slot.is_idle():
-        #     slot.closing.callback(spider)
-        pass
-
-    def enqueue_scrape(self, response, request, spider):
-        for item_or_request in request.callback(response):
-            print('Parsed {}'.format(item_or_request.decode()))

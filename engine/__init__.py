@@ -24,13 +24,32 @@ class Heart(object):
         self.next_call = next_call
         self.scheduler = scheduler
         self.closing = False
+        self.in_progress = set()
+
+    def add_request(self, request):
+        self.in_progress.add(request)
+
+    def remove_request(self, request):
+        self.in_progress.remove(request)
+        self.heart_maybe_stop()
 
     def _heartbeat(self, interval):
-        self.next_call.schedule()
-        loop.call_later(interval, self._heartbeat, interval)
+        if self.closing:
+            self.next_call.schedule()
+            loop.call_later(interval, self._heartbeat, interval)
 
     def start(self, interval):
         self._heartbeat(interval)
+
+    def close(self):
+        self.closing = True
+        self.heart_maybe_stop()
+        return self.closing
+
+    def heart_maybe_stop(self):
+        if self.closing and not self.in_progress:
+            if self.next_call:
+                self.next_call.cancel()
 
 
 class Engine(object):
@@ -117,8 +136,8 @@ class Engine(object):
         heart = self.heart
         if heart.closing:
             return heart.closing
-        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
         heart.close()
+        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
 
     def _needs_slowdown(self):
         return self.downloader.needs_slowdown()
@@ -133,14 +152,14 @@ class Engine(object):
 
     async def _download(self, request, spider):
         try:
+            self.heart.add_request(request)
             response = await self.downloader.fetch(request, spider)
             assert isinstance(response, (Response, Request))
-            # b = isinstance(response, Response)
-            # a = isinstance(response, HtmlResponse)
             if isinstance(response, Response):
                 response.request = request
             self.heart.next_call.schedule()
             self._handle_downloader_output(response, request, spider)
+            self.heart.remove_request(request)
         except Exception as e:
             print(logger.exception(e))
         finally:
@@ -152,12 +171,7 @@ class Engine(object):
             self.crawl(response, spider)
             return
         # self.scraper.enqueue_scrape(response, request, spider)
-        # self.scraper.enqueue_scrape2(response, request, spider)
-        # loop.call_later(0, self.scraper.enqueue_scrape2, response, request, spider)
-        # loop.call_later(2, self.scraper.enqueue_scrape2, response, request, spider)
-        loop.call_later(1, self.scraper.enqueue_scrape2, response, request, spider)
-        # for item_or_request in request.callback(response):
-        #     print('Parsed {}'.format(item_or_request.decode()))
+        loop.call_later(1, self.scraper.enqueue_scrape, response, request, spider)
 
     def crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
