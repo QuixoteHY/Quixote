@@ -138,6 +138,7 @@ class Engine(object):
             return heart.closing
         heart.close()
         logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
+        self.starter.stats.close_spider(spider, reason=reason)
         loop.call_later(3, self.starter.close)
 
     def _needs_slowdown(self):
@@ -196,6 +197,7 @@ class Engine(object):
         start_requests = self.scraper.spidermw.process_start_requests(self.spider.start_requests(), spider)
         self.heart = Heart(start_requests, close_if_idle, next_call, scheduler)
         self.scraper.open_spider(spider)
+        self.starter.stats.open_spider(spider)
         self.heart.next_call.schedule()
         self.heart.start(5)
         asyncio.set_event_loop(loop)

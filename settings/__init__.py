@@ -59,6 +59,11 @@ class Settings(object):
         self.settings['TELNETCONSOLE_PORT'] = settings.TELNETCONSOLE_PORT
         self.settings['TELNETCONSOLE_HOST'] = settings.TELNETCONSOLE_HOST
 
+        self.settings['STATS_CLASS'] = settings.STATS_CLASS
+        self.settings['STATS_DUMP'] = settings.STATS_DUMP
+
+        self.settings['DOWNLOADER_STATS'] = settings.DOWNLOADER_STATS
+
     def get_settings(self):
         return copy.deepcopy(self.settings)
 

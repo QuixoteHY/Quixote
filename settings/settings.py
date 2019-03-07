@@ -32,6 +32,7 @@ DOWNLOADER_MIDDLEWARES = {}
 DOWNLOADER_MIDDLEWARES_BASE = {
     'quixote.downloader.downloadermiddlewares.default_headers.DefaultHeadersMiddleware': 400,
     'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': 700,
+    'quixote.downloader.downloadermiddlewares.stats.DownloaderStats': 850,
 }
 # DOWNLOADER_MIDDLEWARES_BASE = {
 #     # Engine side
@@ -112,3 +113,9 @@ EXTENSIONS_BASE = {
 TELNETCONSOLE_ENABLED = 1
 TELNETCONSOLE_PORT = [6023, 6073]
 TELNETCONSOLE_HOST = '127.0.0.1'
+
+
+STATS_CLASS = 'quixote.state.statecollector.MemoryStatsCollector'
+STATS_DUMP = True
+
+DOWNLOADER_STATS = True
