@@ -33,6 +33,19 @@ class Settings(object):
         if settings.DOWNLOADER_MIDDLEWARES:
             self.settings['DOWNLOADER_MIDDLEWARES'].update(settings.DOWNLOADER_MIDDLEWARES)
 
+        self.settings['HTTPCACHE_ENABLED'] = settings.HTTPCACHE_ENABLED
+        self.settings['HTTPCACHE_POLICY'] = settings.HTTPCACHE_POLICY
+        self.settings['HTTPCACHE_STORAGE'] = settings.HTTPCACHE_STORAGE
+        self.settings['HTTPCACHE_IGNORE_MISSING'] = settings.HTTPCACHE_IGNORE_MISSING
+        self.settings['HTTPCACHE_DIR'] = settings.HTTPCACHE_DIR
+        self.settings['HTTPCACHE_EXPIRATION_SECS'] = settings.HTTPCACHE_EXPIRATION_SECS
+        self.settings['HTTPCACHE_ALWAYS_STORE'] = settings.HTTPCACHE_ALWAYS_STORE
+        self.settings['HTTPCACHE_IGNORE_HTTP_CODES'] = settings.HTTPCACHE_IGNORE_HTTP_CODES
+        self.settings['HTTPCACHE_IGNORE_SCHEMES'] = settings.HTTPCACHE_IGNORE_SCHEMES
+        self.settings['HTTPCACHE_IGNORE_RESPONSE_CACHE_CONTROLS'] = settings.HTTPCACHE_IGNORE_RESPONSE_CACHE_CONTROLS
+        self.settings['HTTPCACHE_DBM_MODULE'] = settings.HTTPCACHE_DBM_MODULE
+        self.settings['HTTPCACHE_GZIP'] = settings.HTTPCACHE_GZIP
+
         self.settings['COOKIES_ENABLED'] = settings.COOKIES_ENABLED
         self.settings['COOKIES_DEBUG'] = settings.COOKIES_DEBUG
 

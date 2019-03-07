@@ -138,8 +138,8 @@ class Engine(object):
             return heart.closing
         heart.close()
         logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
-        self.starter.stats.close_spider(spider, reason=reason)
-        loop.call_later(3, self.starter.close)
+        # self.starter.stats.close_spider(spider, reason=reason)
+        loop.call_later(3, self.starter.close, reason)
 
     def _needs_slowdown(self):
         return self.downloader.needs_slowdown()

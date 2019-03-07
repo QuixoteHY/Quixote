@@ -5,6 +5,8 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 配置文件
 
+import six
+
 ENGINE = 'quixote.engine.Engine'
 
 SCHEDULER = 'quixote.scheduler.Scheduler'
@@ -30,9 +32,12 @@ DOWNLOAD_HANDLERS_BASE = {
 
 DOWNLOADER_MIDDLEWARES = {}
 DOWNLOADER_MIDDLEWARES_BASE = {
+    # Engine side
     'quixote.downloader.downloadermiddlewares.default_headers.DefaultHeadersMiddleware': 400,
     'quixote.downloader.downloadermiddlewares.cookies.CookiesMiddleware': 700,
     'quixote.downloader.downloadermiddlewares.stats.DownloaderStats': 850,
+    'quixote.downloader.downloadermiddlewares.httpcache.HttpCacheMiddleware': 900,
+    # Downloader side
 }
 # DOWNLOADER_MIDDLEWARES_BASE = {
 #     # Engine side
@@ -60,6 +65,19 @@ DEFAULT_REQUEST_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en',
 }
+
+HTTPCACHE_ENABLED = False
+HTTPCACHE_POLICY = 'quixote.extension.httpcache.DummyPolicy'
+HTTPCACHE_STORAGE = 'quixote.extension.httpcache.FilesystemCacheStorage'
+HTTPCACHE_IGNORE_MISSING = False
+HTTPCACHE_DIR = 'httpcache'
+HTTPCACHE_EXPIRATION_SECS = 0
+HTTPCACHE_ALWAYS_STORE = False
+HTTPCACHE_IGNORE_HTTP_CODES = []
+HTTPCACHE_IGNORE_SCHEMES = ['file']
+HTTPCACHE_IGNORE_RESPONSE_CACHE_CONTROLS = []
+HTTPCACHE_DBM_MODULE = 'anydbm' if six.PY2 else 'dbm'
+HTTPCACHE_GZIP = False
 
 
 ITEM_PROCESSOR = 'quixote.scraper.pipelines.ItemPipelineManager'

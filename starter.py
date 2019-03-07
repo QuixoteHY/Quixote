@@ -77,13 +77,14 @@ class Starter(object):
             self.engine.start(self.spider)
         except KeyboardInterrupt as e:
             logger.info(e)
-            self.close()
+            self.close('KeyboardInterrupt')
 
-    def close(self):
+    def close(self, reason):
         self.crawling = False
         if self.engine is not None:
             self.engine.close()
         logger.info('total time: '+str(int(time.time())-self.start_time))
+        self.stats.close_spider(self.spider, reason=reason)
         loop.stop()
 
     def _create_spider(self, *args, **kwargs):
