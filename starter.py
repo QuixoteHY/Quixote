@@ -8,12 +8,17 @@
 import os
 import time
 
+from zope.interface.exceptions import DoesNotImplement
+from zope.interface.verify import verifyClass
+
 from quixote import loop
 from quixote.settings import Settings
 from quixote.logger import logger
+from quixote.exceptions import QuixoteDeprecationWarning
 from quixote.extension import ExtensionManager
 from quixote.signals.signalmanager import SignalManager
 from quixote.utils.misc import load_object
+from quixote.spider.spiderloader import ISpiderLoader
 
 from quixote.utils.schedule_func import CallLaterOnce
 import tracemalloc
@@ -45,16 +50,32 @@ class CheckMemory(object):
         self._heartbeat(interval)
 
 
+def _get_spider_loader(settings):
+    """Get SpiderLoader instance from settings"""
+    cls_path = settings['SPIDER_LOADER_CLASS']
+    loader_cls = load_object(cls_path)
+    try:
+        verifyClass(ISpiderLoader, loader_cls)
+    except DoesNotImplement:
+        logger.warn('SPIDER_LOADER_CLASS (previously named SPIDER_MANAGER_CLASS) does not fully implement '
+                    'quixote.spider.spiderloader.ISpiderLoader interface. Please add all missing methods to avoid '
+                    'unexpected runtime errors.', category=QuixoteDeprecationWarning, stacklevel=2)
+    return loader_cls.from_settings(settings)
+
+
 class Starter(object):
-    def __init__(self, spider_class, settings_class=None, is_check_emmory=False):
-        if settings_class:
-            self.settings = Settings(load_object(settings_class)).get_settings()
-        else:
-            from quixote.settings import settings
-            self.settings = Settings(settings).get_settings()
+    def __init__(self, spider_name, project_settings=None, is_check_emmory=False):
+        from quixote.settings import settings
+        self.settings = Settings(settings).get_settings()
+        project_settings = Settings.get_dict_from_settings_file(project_settings)
+        for s_k, s_v in project_settings.items():
+            self.settings[s_k] = s_v
+        self.spider_loader = _get_spider_loader(self.settings)
+        print(self.spider_loader)
         print(self.settings)
         self.engine_class = load_object(self.settings['ENGINE'])
-        self.spider_class = load_object(spider_class)
+        # self.spider_class = load_object(spider_class)
+        self.spider_class = self.spider_loader.get_spider_by_name(spider_name)
         self.signals = SignalManager()
         self.stats = load_object(self.settings['STATS_CLASS'])(self)
         self.extensions = ExtensionManager.from_starter(self)

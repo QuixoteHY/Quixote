@@ -23,6 +23,10 @@ CONCURRENT_REQUESTS_PER_IP = 0
 RANDOMIZE_DOWNLOAD_DELAY = True
 
 
+SPIDER_LOADER_CLASS = 'quixote.spider.spiderloader.SpiderLoader'
+SPIDER_LOADER_WARN_ONLY = False
+
+
 DOWNLOAD_HANDLERS = {}
 DOWNLOAD_HANDLERS_BASE = {
     'http': 'quixote.downloader.download_handler.http_download_handler.HTTPDownloadHandler',
@@ -82,16 +86,18 @@ HTTPCACHE_GZIP = False
 
 ITEM_PROCESSOR = 'quixote.scraper.pipelines.ItemPipelineManager'
 CONCURRENT_ITEMS = 100
-ITEM_PIPELINES = {
-    'quixote.test.test_spider.test_pipeline.TestPipeline': 100,
-    'quixote.test.test_spider.test_pipeline.TestPipeline2': 101,
-}
+ITEM_PIPELINES = {}
+# ITEM_PIPELINES = {
+#     'quixote.test.test_spider.test_pipeline.TestPipeline': 100,
+#     'quixote.test.test_spider.test_pipeline.TestPipeline2': 101,
+# }
 ITEM_PIPELINES_BASE = {}
 
 
-SPIDER_MIDDLEWARES = {
-    'quixote.test.test_spider.test_middleware.TestMiddleware': 100,
-}
+SPIDER_MIDDLEWARES = {}
+# SPIDER_MIDDLEWARES = {
+#     'quixote.test.test_spider.test_middleware.TestMiddleware': 100,
+# }
 SPIDER_MIDDLEWARES_BASE = {
     'quixote.spider.spidermiddlewares.httperror.HttpErrorMiddleware': 50,
     'quixote.spider.spidermiddlewares.urllength.UrlLengthMiddleware': 800,

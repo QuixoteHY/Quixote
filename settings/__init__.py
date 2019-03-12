@@ -25,6 +25,9 @@ class Settings(object):
 
         self.settings['RANDOMIZE_DOWNLOAD_DELAY'] = settings.RANDOMIZE_DOWNLOAD_DELAY
 
+        self.settings['SPIDER_LOADER_CLASS'] = settings.SPIDER_LOADER_CLASS
+        self.settings['SPIDER_LOADER_WARN_ONLY'] = settings.SPIDER_LOADER_WARN_ONLY
+
         self.settings['DOWNLOAD_HANDLERS'] = settings.DOWNLOAD_HANDLERS_BASE
         if settings.DOWNLOAD_HANDLERS:
             self.settings['DOWNLOAD_HANDLERS'].update(settings.DOWNLOAD_HANDLERS)
@@ -82,3 +85,18 @@ class Settings(object):
 
     def copy(self):
         return copy.deepcopy(self.settings)
+
+    @staticmethod
+    def get_dict_from_settings_file(settings):
+        settings_dict = dict()
+        if hasattr(settings, 'BOT_NAME'):
+            settings_dict['BOT_NAME'] = settings.BOT_NAME
+        if hasattr(settings, 'SPIDER_MODULES'):
+            settings_dict['SPIDER_MODULES'] = settings.SPIDER_MODULES
+        if hasattr(settings, 'NEWSPIDER_MODULE'):
+            settings_dict['NEWSPIDER_MODULE'] = settings.NEWSPIDER_MODULE
+        if hasattr(settings, 'ITEM_PIPELINES'):
+            settings_dict['ITEM_PIPELINES'] = settings.ITEM_PIPELINES
+        if hasattr(settings, 'SPIDER_MIDDLEWARES'):
+            settings_dict['SPIDER_MIDDLEWARES'] = settings.SPIDER_MIDDLEWARES
+        return settings_dict
