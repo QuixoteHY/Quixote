@@ -6,12 +6,22 @@
 # @Describe : Frame Template
 
 import os
+from os.path import join
 import re
 import string
 
 from shutil import ignore_patterns, move, copy2, copystat
 
 from quixote import FRAME_PATH
+from quixote.logger import logger
+
+TEMPLATES_TO_RENDER = (
+    ('scrapy.cfg',),
+    ('${project_name}', 'settings.py.tmpl'),
+    ('${project_name}', 'items.py.tmpl'),
+    ('${project_name}', 'pipelines.py.tmpl'),
+    ('${project_name}', 'middlewares.py.tmpl'),
+)
 
 
 def render_templatefile(path, **kwargs):
@@ -45,7 +55,7 @@ def _copytree(src, dst):
         the issue a new function had to be created. It's a simple copy and
         was reduced for this case.
         """
-        print('src='+src+'\ndst='+dst)
+        # logger.info('src='+src+'\ndst='+dst)
         ignore = IGNORE
         names = os.listdir(src)
         ignored_names = ignore(src, names)
@@ -81,14 +91,25 @@ def startproject(project_path, project_name):
         return
     templates_dir = FRAME_PATH+'/templates/project'
     _copytree(templates_dir, project_path)
+    move(join(project_path, 'module'), join(project_path, project_name))
+    for paths in TEMPLATES_TO_RENDER:
+        path = join(*paths)
+        tpl_file = join(project_path, string.Template(path).substitute(project_name=project_name))
+        render_templatefile(tpl_file, project_name=project_name, ProjectName=string_camelcase(project_name))
+    print("New Quixote project %r, using template directory %r, created in:" % (project_name, templates_dir))
+    print("    %s\n" % os.path.abspath(project_path))
+    print("You can start your first spider with:")
+    print("    cd %s" % project_path)
+    print("    quixote genspider example example.com")
 
 
 if __name__ == '__main__':
     import sys
     from quixote.logger import logger
 
-    argv_project_path = '/Users/muyichun/Desktop'
-    argv_project_name = 'huyuan'
+    # argv_project_path = '/Users/muyichun/Desktop'
+    argv_project_path = '/Users/muyichun/PycharmProjects/socialpeta/'
+    argv_project_name = 'demo'
     startproject(argv_project_path, argv_project_name)
 
     # order = sys.argv[1]
