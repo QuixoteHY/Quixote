@@ -13,6 +13,7 @@ from quixote import loop
 from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
 from quixote.signals import engine_started
+from quixote.exceptions import CloseSpider
 from quixote.logger import logger
 from quixote.utils.misc import load_object
 from quixote.utils.schedule_func import CallLaterOnce
@@ -164,7 +165,7 @@ class Engine(object):
             self._handle_downloader_output(response, request, spider)
             self.heart.remove_request(request)
         except Exception as e:
-            print(logger.exception(e))
+            logger.error(logger.exception(e))
         finally:
             self.heart.next_call.schedule()
 
@@ -193,11 +194,11 @@ class Engine(object):
         self.running = True
         self.signals.send(engine_started, self)
         self.spider = spider
-        self.before_start_requests(self.spider)
         next_call = CallLaterOnce(self._next_request, spider)
         scheduler = self.scheduler_class.from_starter(self.starter)
         start_requests = self.scraper.spidermw.process_start_requests(self.spider.start_requests(), spider)
         self.heart = Heart(start_requests, close_if_idle, next_call, scheduler)
+        self.before_start_requests(self.spider)
         self.scraper.open_spider(spider)
         self.starter.stats.open_spider(spider)
         self.heart.next_call.schedule()
@@ -215,11 +216,12 @@ class Engine(object):
                 for item in _request.callback(response):
                     print(item)
             except Exception as e:
-                print(logger.exception(e))
+                logger.error(logger.exception(e))
+                raise CloseSpider('before_start_requests error')
         start_requests = spider.before_start_requests()
         if not isinstance(start_requests, types.GeneratorType):
             return
         for request in start_requests:
-            # if not request:
-            #     continue
+            if not request:
+                continue
             loop.run_until_complete(task(request, spider))

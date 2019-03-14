@@ -99,6 +99,9 @@ class Starter(object):
         except KeyboardInterrupt as e:
             logger.info(e)
             self.close('KeyboardInterrupt')
+        except Exception as e:
+            logger.info(e)
+            self.close(str(e))
 
     def close(self, reason):
         self.crawling = False
