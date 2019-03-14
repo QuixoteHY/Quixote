@@ -4,7 +4,8 @@ from os.path import dirname, abspath
 import time
 
 import quixote
-from tutorial.tutorial.items import TestItem
+from quixote.test.test_spider.tutorial.tutorial.items import TestItem
+# from tutorial.tutorial.items import TestItem
 from quixote.starter import Starter
 
 

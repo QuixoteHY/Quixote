@@ -38,7 +38,7 @@ class Spider(object):
         1、爬虫开始前登录目标网站，目的是将登录信息保存下来
         :return:
         """
-        pass
+        yield
 
     def start_requests(self):
         for url in self.start_urls:

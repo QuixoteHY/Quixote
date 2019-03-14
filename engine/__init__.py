@@ -5,6 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
+import types
 import time
 import asyncio
 
@@ -173,7 +174,8 @@ class Engine(object):
             self.crawl(response, spider)
             return
         # self.scraper.enqueue_scrape(response, request, spider)
-        loop.call_later(1, self.scraper.enqueue_scrape, response, request, spider)
+        # call_later 第一个参数必须为0，否则request会在该回调函数执行完前从heart中清除掉，这块逻辑需要优化
+        loop.call_later(0, self.scraper.enqueue_scrape, response, request, spider)
 
     def crawl(self, request, spider):
         assert spider in [self.spider], "Spider %r not opened when crawling: %s" % (spider.name, request)
@@ -214,5 +216,10 @@ class Engine(object):
                     print(item)
             except Exception as e:
                 print(logger.exception(e))
-        for request in spider.before_start_requests():
+        start_requests = spider.before_start_requests()
+        if not isinstance(start_requests, types.GeneratorType):
+            return
+        for request in start_requests:
+            # if not request:
+            #     continue
             loop.run_until_complete(task(request, spider))
