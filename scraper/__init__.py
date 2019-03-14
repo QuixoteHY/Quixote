@@ -5,6 +5,7 @@
 # @Email    : 1290482442@qq.com
 # @Describe : 引擎
 
+import types
 from collections import deque
 
 from quixote.protocol import Request, Response
@@ -111,7 +112,11 @@ class Scraper(object):
     def call_parser(response, request, spider):
         response.request = request
         callback = request.callback or spider.parse
-        for item_or_request in callback(response):
+        gen_callback = callback(response)
+        # 此处需要思考一下
+        if not isinstance(gen_callback, types.GeneratorType):
+            return
+        for item_or_request in gen_callback:
             yield item_or_request
 
     def handle_parser_output(self, result, request, response, spider):
