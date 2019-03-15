@@ -99,7 +99,7 @@ class Starter(object):
             logger.info(e)
             self.close('KeyboardInterrupt')
         except Exception as e:
-            logger.info(e)
+            logger.info(logger.exception(e))
             self.close(str(e))
 
     def close(self, reason):

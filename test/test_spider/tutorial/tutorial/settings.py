@@ -13,8 +13,8 @@ NEWSPIDER_MODULE = 'test.test_spider.tutorial.tutorial.spiders'
 #     'tutorial.tutorial.pipelines.TestPipeline2': 101,
 # }
 ITEM_PIPELINES = {
-    'quixote.test.test_spider.tutorial.tutorial.pipelines.TestPipeline': 100,
-    'quixote.test.test_spider.tutorial.tutorial.pipelines.TestPipeline2': 101,
+    'test.test_spider.tutorial.tutorial.pipelines.TestPipeline': 100,
+    'test.test_spider.tutorial.tutorial.pipelines.TestPipeline2': 101,
 }
 
 
@@ -22,5 +22,5 @@ ITEM_PIPELINES = {
 #     'tutorial.tutorial.middleware.TestMiddleware': 100,
 # }
 SPIDER_MIDDLEWARES = {
-    'quixote.test.test_spider.tutorial.tutorial.middleware.TestMiddleware': 100,
+    'test.test_spider.tutorial.tutorial.middleware.TestMiddleware': 100,
 }

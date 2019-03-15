@@ -135,9 +135,7 @@ class Scraper(object):
     def _itemproc_finished(self, output, item, response, spider):
         self.slot.itemproc_size -= 1
         if output:
-            # print('Parsed\tstatus={}'.format(str(item['status']) + '\turl=' + item['url']
-            #                                  + '\tpipeline=' + str(item['pipeline']) + ' q=' + item['q']))
-            print(item)
+            print('\t'.join([str(k)+': '+str(v) for k, v in item.items()]))
         else:
             print('Parsed Error...')
 
