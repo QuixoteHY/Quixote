@@ -68,7 +68,7 @@ class Engine(object):
         downloader_class = load_object(self.settings['DOWNLOADER'])
         self.downloader = downloader_class(starter)
         self.running = False
-        self.crawling = []
+        self.downloading = set()
         self.max = 5
         self.paused = False
         self.start_time = 0
@@ -115,6 +115,8 @@ class Engine(object):
             self._spider_idle(spider)
 
     def spider_is_idle(self):
+        if self.downloading:
+            return False
         if not self.scraper.slot.is_idle():
             # scraper is not idle
             return False
@@ -151,6 +153,7 @@ class Engine(object):
         request = heart.scheduler.pop_request()
         if not request:
             return False
+        self.downloading.add(request)
         asyncio.run_coroutine_threadsafe(self._download(request, spider), loop)
         return True
 
@@ -163,10 +166,13 @@ class Engine(object):
                 response.request = request
             self.heart.next_call.schedule()
             self._handle_downloader_output(response, request, spider)
-            self.heart.remove_request(request)
+            # 需认真检查, 如果出现异常，预计会出现什么情况
+            # self.heart.remove_request(request)
         except Exception as e:
             logger.error(logger.exception(e))
         finally:
+            self.downloading.remove(request)
+            self.heart.remove_request(request)
             self.heart.next_call.schedule()
 
     def _handle_downloader_output(self, response, request, spider):
