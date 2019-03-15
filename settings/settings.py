@@ -87,17 +87,10 @@ HTTPCACHE_GZIP = False
 ITEM_PROCESSOR = 'quixote.scraper.pipelines.ItemPipelineManager'
 CONCURRENT_ITEMS = 100
 ITEM_PIPELINES = {}
-# ITEM_PIPELINES = {
-#     'quixote.test.test_spider.test_pipeline.TestPipeline': 100,
-#     'quixote.test.test_spider.test_pipeline.TestPipeline2': 101,
-# }
 ITEM_PIPELINES_BASE = {}
 
 
 SPIDER_MIDDLEWARES = {}
-# SPIDER_MIDDLEWARES = {
-#     'quixote.test.test_spider.test_middleware.TestMiddleware': 100,
-# }
 SPIDER_MIDDLEWARES_BASE = {
     'quixote.spider.spidermiddlewares.httperror.HttpErrorMiddleware': 50,
     'quixote.spider.spidermiddlewares.urllength.UrlLengthMiddleware': 800,

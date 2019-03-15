@@ -71,7 +71,6 @@ class Starter(object):
         for s_k, s_v in project_settings.items():
             self.settings[s_k] = s_v
         self.spider_loader = _get_spider_loader(self.settings)
-        print(self.spider_loader)
         print(self.settings)
         self.engine_class = load_object(self.settings['ENGINE'])
         # self.spider_class = load_object(spider_class)

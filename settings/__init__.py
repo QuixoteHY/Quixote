@@ -96,7 +96,10 @@ class Settings(object):
         if hasattr(settings, 'NEWSPIDER_MODULE'):
             settings_dict['NEWSPIDER_MODULE'] = settings.NEWSPIDER_MODULE
         if hasattr(settings, 'ITEM_PIPELINES'):
-            settings_dict['ITEM_PIPELINES'] = settings.ITEM_PIPELINES
+            # settings_dict['ITEM_PIPELINES'] = settings.ITEM_PIPELINES
+            settings_dict['ITEM_PIPELINES'] = {settings.BOT_NAME+'.'+k: v for k, v in settings.ITEM_PIPELINES.items()}
         if hasattr(settings, 'SPIDER_MIDDLEWARES'):
-            settings_dict['SPIDER_MIDDLEWARES'] = settings.SPIDER_MIDDLEWARES
+            # settings_dict['SPIDER_MIDDLEWARES'] = settings.SPIDER_MIDDLEWARES
+            settings_dict['SPIDER_MIDDLEWARES'] = {
+                settings.BOT_NAME+'.'+k: v for k, v in settings.SPIDER_MIDDLEWARES.items()}
         return settings_dict
