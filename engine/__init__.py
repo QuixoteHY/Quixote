@@ -114,10 +114,10 @@ class Engine(object):
                              extra={'spider': spider, 'exc_info': str(e)})
             else:
                 self.crawl(request, spider)
-        if self.spider_is_idle() and heart.close_if_idle:
-            self._spider_idle(spider)
+        if self.engin_is_idle() and heart.close_if_idle:
+            self._ready_to_close(spider)
 
-    def spider_is_idle(self):
+    def engin_is_idle(self):
         if self.downloading:
             return False
         if not self.scraper.slot.is_idle():
@@ -134,19 +134,15 @@ class Engine(object):
             return False
         return True
 
-    def _spider_idle(self, spider):
-        if self.spider_is_idle():
-            self.close_spider(spider, reason='finished')
-
-    def close_spider(self, spider, reason='cancelled'):
-        """Close (cancel) spider and clear all its outstanding requests"""
+    def _ready_to_close(self, spider):
+        if not self.engin_is_idle():
+            return
+        reason = 'finished'
         heart = self.heart
         if heart.closing:
             return heart.closing
         heart.close()
         logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
-        # self.starter.stats.close_spider(spider, reason=reason)
-        # self.signals.send(signals.spider_closed, spider)
         loop.call_later(3, self.starter.close, reason)
 
     def _needs_slowdown(self):
