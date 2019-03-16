@@ -60,6 +60,8 @@ class Scraper(object):
         self.itemmw = itemmw_cls.from_starter(starter)
         self.concurrent_items = starter.settings['CONCURRENT_ITEMS']
         self.starter = starter
+        self.signals = starter.signals
+        self.stats = starter.stats
 
     def open_spider(self, spider):
         """Open the given spider for scraping and allocate resources for it"""
@@ -134,6 +136,7 @@ class Scraper(object):
 
     def _itemproc_finished(self, output, item, response, spider):
         self.slot.itemproc_size -= 1
+        self.stats.inc_value('scraper/item_scraped', spider=spider)
         if output:
             print('\t'.join([str(k)+': '+str(v) for k, v in item.items()]))
         else:
