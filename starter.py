@@ -104,11 +104,9 @@ class Starter(object):
             self.close(str(e))
 
     def close(self, reason):
-        # 必须先与engine关闭
-        # self.signals.send(signals.spider_closed, self.engine.spider)
         self.crawling = False
         if self.engine is not None:
-            self.engine.close()
+            self.engine.close(reason)
         logger.info('total time: '+str(int(time.time())-self.start_time))
         self.stats.close_spider(self.spider, reason=reason)
         loop.stop()

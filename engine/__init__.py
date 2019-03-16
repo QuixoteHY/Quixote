@@ -6,7 +6,6 @@
 # @Describe : 引擎
 
 import types
-import time
 import asyncio
 
 from quixote import loop
@@ -69,25 +68,32 @@ class Engine(object):
         self.running = False
         self.paused = False
 
-    def close(self):
+    def start(self, spider, close_if_idle=True):
+        self.running = True
+        self.signals.send(signals.engine_started, self)
+        self.spider = spider
+        next_call = CallLaterOnce(self._next_request, spider)
+        scheduler = self.scheduler_class.from_starter(self.starter)
+        start_requests = self.scraper.spidermw.process_start_requests(self.spider.start_requests(), spider)
+        self.heart = Heart(start_requests, close_if_idle, next_call, scheduler)
+        self.before_start_requests(self.spider)
+        self.scraper.open_spider(spider)
+        self.starter.stats.open_spider(spider)
+        self.heart.next_call.schedule()
+        self.heart.start(5)
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
+
+    def close(self, reason):
         """Close the engine gracefully.
-        If it has already been started, stop it. In all cases, close all spiders and the downloader.
+        :param reason:
         :return:
         """
+        assert self.running, "Engine not running"
+        self.running = False
         self.signals.send(signals.spider_closed, self.spider)
         asyncio.run_coroutine_threadsafe(self.downloader.close(), loop)
-        if self.running:
-            # Will also close spiders and downloader
-            return self.stop()
-        # elif self.open_spiders:
-        #     # Will also close downloader
-        #     return self._close_all_spiders()
-        else:
-            pass
-            # return self.downloader.close()
-
-    def stop(self):
-        pass
+        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': self.spider})
 
     def _next_request(self, spider):
         if not self.heart:
@@ -110,7 +116,7 @@ class Engine(object):
             else:
                 self.crawl(request, spider)
         if self.engin_is_idle() and heart.close_if_idle:
-            self._ready_to_close(spider)
+            self._ready_to_close()
 
     def engin_is_idle(self):
         if self.downloading:
@@ -129,7 +135,7 @@ class Engine(object):
             return False
         return True
 
-    def _ready_to_close(self, spider):
+    def _ready_to_close(self):
         if not self.engin_is_idle():
             return
         heart = self.heart
@@ -137,7 +143,6 @@ class Engine(object):
             return heart.closing
         reason = 'finished'
         heart.close()
-        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
         loop.call_later(3, self.starter.close, reason)
 
     def _needs_slowdown(self):
@@ -189,22 +194,6 @@ class Engine(object):
 
     def un_pause(self):
         self.paused = False
-
-    def start(self, spider, close_if_idle=True):
-        self.running = True
-        self.signals.send(signals.engine_started, self)
-        self.spider = spider
-        next_call = CallLaterOnce(self._next_request, spider)
-        scheduler = self.scheduler_class.from_starter(self.starter)
-        start_requests = self.scraper.spidermw.process_start_requests(self.spider.start_requests(), spider)
-        self.heart = Heart(start_requests, close_if_idle, next_call, scheduler)
-        self.before_start_requests(self.spider)
-        self.scraper.open_spider(spider)
-        self.starter.stats.open_spider(spider)
-        self.heart.next_call.schedule()
-        self.heart.start(5)
-        asyncio.set_event_loop(loop)
-        loop.run_forever()
 
     def before_start_requests(self, spider):
         async def task(_request, _spider):
