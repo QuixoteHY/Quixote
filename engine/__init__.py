@@ -13,7 +13,6 @@ from quixote import loop
 from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
 from quixote import signals
-# from quixote.signals import engine_started
 from quixote.exceptions import CloseSpider
 from quixote.logger import logger
 from quixote.utils.misc import load_object
@@ -60,19 +59,15 @@ class Engine(object):
         self.starter = starter
         self.settings = starter.settings
         self.signals = starter.signals
-        self.loop = None
-        self.spider = None
-        self.scheduler = None
-        self.scraper = Scraper(starter)
         self.heart = None
+        self.spider = None
+        self.scraper = Scraper(starter)
         self.scheduler_class = load_object(self.settings['SCHEDULER'])
         downloader_class = load_object(self.settings['DOWNLOADER'])
         self.downloader = downloader_class(starter)
-        self.running = False
         self.downloading = set()
-        self.max = 5
+        self.running = False
         self.paused = False
-        self.start_time = 0
 
     def close(self):
         """Close the engine gracefully.
@@ -137,10 +132,10 @@ class Engine(object):
     def _ready_to_close(self, spider):
         if not self.engin_is_idle():
             return
-        reason = 'finished'
         heart = self.heart
         if heart.closing:
             return heart.closing
+        reason = 'finished'
         heart.close()
         logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
         loop.call_later(3, self.starter.close, reason)
@@ -196,7 +191,6 @@ class Engine(object):
         self.paused = False
 
     def start(self, spider, close_if_idle=True):
-        self.start_time = time.time()
         self.running = True
         self.signals.send(signals.engine_started, self)
         self.spider = spider
