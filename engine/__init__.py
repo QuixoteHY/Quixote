@@ -12,7 +12,8 @@ import asyncio
 from quixote import loop
 from quixote.protocol import Request, Response
 from quixote.scraper import Scraper
-from quixote.signals import engine_started
+from quixote import signals
+# from quixote.signals import engine_started
 from quixote.exceptions import CloseSpider
 from quixote.logger import logger
 from quixote.utils.misc import load_object
@@ -78,6 +79,7 @@ class Engine(object):
         If it has already been started, stop it. In all cases, close all spiders and the downloader.
         :return:
         """
+        self.signals.send(signals.spider_closed, self.spider)
         if self.running:
             # Will also close spiders and downloader
             return self.stop()
@@ -143,6 +145,7 @@ class Engine(object):
         heart.close()
         logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': spider})
         # self.starter.stats.close_spider(spider, reason=reason)
+        # self.signals.send(signals.spider_closed, spider)
         loop.call_later(3, self.starter.close, reason)
 
     def _needs_slowdown(self):
@@ -198,7 +201,7 @@ class Engine(object):
     def start(self, spider, close_if_idle=True):
         self.start_time = time.time()
         self.running = True
-        self.signals.send(engine_started, self)
+        self.signals.send(signals.engine_started, self)
         self.spider = spider
         next_call = CallLaterOnce(self._next_request, spider)
         scheduler = self.scheduler_class.from_starter(self.starter)

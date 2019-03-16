@@ -14,6 +14,7 @@ from zope.interface.verify import verifyClass
 from quixote import loop
 from quixote.settings import Settings
 from quixote.logger import logger
+from quixote import signals
 from quixote.exceptions import QuixoteDeprecationWarning
 from quixote.extension import ExtensionManager
 from quixote.signals.signalmanager import SignalManager
@@ -103,6 +104,8 @@ class Starter(object):
             self.close(str(e))
 
     def close(self, reason):
+        # 必须先与engine关闭
+        # self.signals.send(signals.spider_closed, self.engine.spider)
         self.crawling = False
         if self.engine is not None:
             self.engine.close()
