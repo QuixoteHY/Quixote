@@ -80,6 +80,7 @@ class Engine(object):
         :return:
         """
         self.signals.send(signals.spider_closed, self.spider)
+        asyncio.run_coroutine_threadsafe(self.downloader.close(), loop)
         if self.running:
             # Will also close spiders and downloader
             return self.stop()
