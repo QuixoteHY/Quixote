@@ -43,7 +43,7 @@ class DownloaderMiddlewareManager(MiddlewareManager):
         if hasattr(mw, 'process_exception'):
             self.methods['process_exception'].insert(0, mw.process_exception)
 
-    async def download(self, download_func, request, spider):
+    def download(self, download_func, request, spider):
 
         async def process_request(_request):
             for method in self.methods['process_request']:

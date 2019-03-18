@@ -31,7 +31,7 @@ class Downloader(object):
 
     async def fetch(self, request, spider):
         self.active.add(request)
-        task = await self.middleware.download(self._enqueue_request, request, spider)
+        task = self.middleware.download(self._enqueue_request, request, spider)
         done, pending = await asyncio.wait({task})
         response = None
         if task in done:
