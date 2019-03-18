@@ -25,7 +25,8 @@ class DownloadHandlers(object):
 
     async def close(self):
         for handler in self._handlers:
-            await handler.close()
+            # await handler.close()
+            await self._handlers[handler].close()
 
     def _get_handler(self, scheme):
         if scheme in self._handlers:

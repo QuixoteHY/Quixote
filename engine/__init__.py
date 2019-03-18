@@ -89,12 +89,20 @@ class Engine(object):
         :param reason:
         :return:
         """
+        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': self.spider})
         # 需要将各组件关闭逻辑封装到future对象中，并加上回调函数
         assert self.running, "Engine not running"
         self.running = False
-        asyncio.run_coroutine_threadsafe(self.downloader.close(), loop)
+        # asyncio.run_coroutine_threadsafe(self.downloader.close(), loop)
+        # asyncio.run_coroutine_threadsafe(self.close_components(reason, self.spider), loop)
         self.signals.send(signals.spider_closed, self.spider)
-        logger.info("Closing spider (%(reason)s)", {'reason': reason}, extra={'spider': self.spider})
+        return self.close_components(reason, self.spider)
+
+    def close_components(self, reason, spider):
+        task = asyncio.ensure_future(self.downloader.close())
+        task.add_done_callback(lambda f: logger.info("Spider closed (%(reason)s)", {'reason': reason},
+                                                     extra={'spider': spider}))
+        return {task}
 
     def _next_request(self, spider):
         if not self.heart:

@@ -7,6 +7,8 @@
 
 import os
 import time
+import asyncio
+import functools
 
 from zope.interface.exceptions import DoesNotImplement
 from zope.interface.verify import verifyClass
@@ -106,10 +108,26 @@ class Starter(object):
     def close(self, reason):
         self.crawling = False
         if self.engine is not None:
-            self.engine.close(reason)
+            tasks = self.engine.close(reason)
+            close_task = asyncio.ensure_future(self.close_engine(tasks))
+            close_task.add_done_callback(functools.partial(self._close_starter, reason))
+            asyncio.run_coroutine_threadsafe(self._close(close_task), loop)
+        else:
+            logger.info('total time: '+str(int(time.time())-self.start_time))
+            self.stats.close_spider(self.spider, reason=reason)
+            loop.stop()
+
+    async def close_engine(self, tasks):
+        await asyncio.wait(tasks)
+
+    def _close_starter(self, reason, future):
         logger.info('total time: '+str(int(time.time())-self.start_time))
         self.stats.close_spider(self.spider, reason=reason)
         loop.stop()
+
+    @staticmethod
+    async def _close(close):
+        await asyncio.wait({close})
 
     def _create_spider(self, *args, **kwargs):
         return self.spider_class.from_starter(self, *args, **kwargs)
