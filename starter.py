@@ -100,7 +100,9 @@ class Starter(object):
             self.engine.start(self.spider)
         except KeyboardInterrupt as e:
             logger.info(e)
-            self.close('KeyboardInterrupt')
+            logger.info('total time: '+str(int(time.time())-self.start_time))
+            self.stats.close_spider(self.spider, reason='KeyboardInterrupt')
+            loop.stop()
         except Exception as e:
             logger.info(logger.exception(e))
             self.close(str(e))
@@ -112,10 +114,10 @@ class Starter(object):
             close_task = asyncio.ensure_future(self.close_engine(tasks))
             close_task.add_done_callback(functools.partial(self._close_starter, reason))
             asyncio.run_coroutine_threadsafe(self._close(close_task), loop)
-        else:
-            logger.info('total time: '+str(int(time.time())-self.start_time))
-            self.stats.close_spider(self.spider, reason=reason)
-            loop.stop()
+        # else:
+        #     logger.info('total time: '+str(int(time.time())-self.start_time))
+        #     self.stats.close_spider(self.spider, reason=reason)
+        #     loop.stop()
 
     async def close_engine(self, tasks):
         await asyncio.wait(tasks)
