@@ -93,9 +93,9 @@ class Engine(object):
         assert self.running, "Engine not running"
         self.running = False
         self.signals.send(signals.spider_closed, self.spider)
-        return self.close_components(reason, self.spider)
+        return self._close_components(reason, self.spider)
 
-    def close_components(self, reason, spider):
+    def _close_components(self, reason, spider):
         task = asyncio.ensure_future(self.downloader.close())
         task.add_done_callback(lambda f: logger.info("Spider closed (%(reason)s)", {'reason': reason},
                                                      extra={'spider': spider}))
