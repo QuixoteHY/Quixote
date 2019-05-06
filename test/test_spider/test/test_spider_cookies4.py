@@ -4,12 +4,12 @@ from os.path import dirname, abspath
 import time
 
 import quixote
-from quixote.test.test_spider.test_item import TestItem
+from quixote.test.test_spider.test.test_item import TestItem
 from quixote.starter import Starter
 
 
-class TestCookiesSpider(quixote.Spider):
-    name = 'test_cookies'
+class TestCookiesSpider4(quixote.Spider):
+    name = 'test_cookies4'
     # host = 'localhost'
     # host = '127.0.0.1'
     host = 'www.huyuan.com'
@@ -90,7 +90,9 @@ class TestCookiesSpider(quixote.Spider):
 
 
 def main():
-    s = Starter('quixote.test.test_spider.test_spider_cookies4.TestCookiesSpider', is_check_emmory=False)
+    # s = Starter('quixote.test.test_spider.test_spider_cookies4.TestCookiesSpider', is_check_emmory=False)
+    from quixote.test.test_spider.test import settings
+    s = Starter('test_cookies4', settings, is_check_emmory=False)
     s.start()
 
 
