@@ -44,7 +44,7 @@ class TestCookiesSpider4(quixote.Spider):
             url = 'http://'+self.host+':8000/test_cookies/test_cookies_'+str(self.i)
             # yield quixote.Request(url, dont_filter=True, headers=self.header, callback=self.parse)
             yield quixote.Request(url, dont_filter=True, headers=self.header)
-            if self.i > 5000:
+            if self.i > 15000:
                 break
 
     def do_login(self, response):

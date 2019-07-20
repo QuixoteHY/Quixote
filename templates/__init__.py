@@ -16,7 +16,7 @@ from quixote import FRAME_PATH
 from quixote.logger import logger
 
 TEMPLATES_TO_RENDER = (
-    ('scrapy.cfg',),
+    ('quixote.cfg',),
     ('${project_name}', 'settings.py.tmpl'),
     ('${project_name}', 'items.py.tmpl'),
     ('${project_name}', 'pipelines.py.tmpl'),
